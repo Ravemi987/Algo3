@@ -1,0 +1,44 @@
+/*
+Pour les axiomes:
+- appliquer tous les opérateurs à tous les opérateurs-constructeurs
+- pour les opérateurs qui sont des fonctions partielles, préciser le domaine de définition avec des pré-conditions
+- prendre en compte l'impact d'un opérateur sur les éléments, les bornes...
+
+Besoin d'une opérations auxiliaire sur la pile qui permet de savoir si celle-ci est vide:
+isEmpty: Stack -> Boolean
+Qui renvoie vrai si la pile ne contient pas d'éléments.
+
+On pourrait vérifier la taille de la pile pour une implantation statique.
+*/
+
+
+Sorte: Stack
+
+Utilise: Element, Boolean
+
+
+Opérateurs Constructeurs:
+    createStack: -> Stack
+    push: Stack x Element -> Stack
+
+Opérateurs:
+    isEmpty: Stack -> Boolean
+    top: Stack -> Element
+    pop: Stack -> Stack
+
+
+Pré-conditions:
+    - top(s) défini ssi isEmpty(s) == FAUX
+    - pop(s) défini ssi isEmpty(s) == FAUX
+
+Axiomes:
+    isEmpty:
+        - isEmpty(createStack()) == VRAI
+        - isEmpty(push(createStack(), e)) == FALSE
+        - isEmpty(pop(push(s, e))) == isEmpty(s)
+    top:
+        - top(push(createStack(), e)) == e
+        - top(push(s, e)) == e
+    pop:
+        - pop(push(createStack(), e)) == createStack()
+        - pop(push(s, e)) == s
