@@ -5,3 +5,6 @@ Compilation and execution:
     - On Linux:
         > make
         > ./Test<filename>
+
+For dynamic analyse:
+    - > valgrind --leak-check=full ./TestStack
