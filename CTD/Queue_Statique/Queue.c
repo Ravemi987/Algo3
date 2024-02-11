@@ -1,22 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "Queue.h"
 #include <assert.h>
-#include <stdbool.h>
 
 #define MAX_SIZE 16
 
-typedef struct {
 
-    int queue[MAX_SIZE];
-	int head;
-	int tail;
-	unsigned int size;
-
-} Queue;
-
-
-Queue *queue(){
+Queue *createQueue() {
 	Queue *q = malloc(sizeof(Queue));
 	q->head = 0;
     q->tail = -1;
@@ -25,29 +13,56 @@ Queue *queue(){
 	return(q);
 }
 
-Queue *queue_push(Queue *q, int v){
-//TODO
+
+Queue *push(Queue *q, int v) {
+	assert(q->size < MAX_SIZE);
+	q->tail = (q->tail + 1) % MAX_SIZE;
+	q->queue[q->tail] = v;
+	++(q->size);
+	return (q);
 }
 
-Queue *pop(Queue *q){
-//TODO
+
+Queue *pop(Queue *q) {
+	assert(!isEmpty(q));
+	q->head = (q->head + 1) % MAX_SIZE;
+	--(q->size);
+	return (q);
 }
 
 //Opérateurs d'état du TAD Queue
-bool queue_empty (const Queue *q){
+bool isEmpty (const Queue *q){
 	return q->size == 0;
 }
 
-int main(){
-	Queue* q = queue();
-	int i;
-	for(i=1;i<=3;i++){
-			q = queue_push(q,i);
-			printf("Size %d\n",q->size );
-			printf("Head %d\n",q->head->value );
-			printf("Tail %d\n",q->tail->value );
+
+int getHead(Queue *q) {
+	assert(!isEmpty(q));
+	return q->queue[q->head];
+}
+
+
+int getTail(Queue *q) {
+	assert(!isEmpty(q));
+	return q->queue[q->tail];
+}
+
+
+int getSize(Queue *q) {
+	return q->size;
+}
+
+
+void printQueue(Queue *q) {
+	for (int i = q->head; i <= q->tail; i++) {
+		printf("%d ", q->queue[i]);
 	}
 
-		
-return(0);
+	printf("\n");
+}
+
+
+void freeQueue(Queue **q) {
+	if ((*q) != NULL) free(*q);
+	*q = NULL;
 }
