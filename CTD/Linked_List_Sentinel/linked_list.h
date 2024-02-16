@@ -13,8 +13,7 @@ typedef struct _Maillon Maillon;
 
 struct _List {
 
-	Maillon *head;
-	Maillon *tail;
+	Maillon *sentinel;
 	int size;
 
 };

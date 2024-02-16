@@ -7,10 +7,11 @@
 
 
 
-//Creation d’une liste doublement chainee vide
-List *list() {
+//Creation d’une liste doublement chaˆın ́ee vide
+List  *list() {
 	List *l = malloc(sizeof(List));
-	l->head = l->tail = NULL;
+	l->sentinel = malloc(sizeof(Maillon));
+	l->sentinel->previous = l->sentinel->next = l->sentinel;
 	l->size = 0;
 	return l;
 }
@@ -18,12 +19,12 @@ List *list() {
 
 //Operateurs d’ajout et de suppression d’un élément à une liste doublement chaînée
 List *push_back(List *l, int v) {
-	Maillon **insert_at = (l->size ? &(l->tail->next) : &(l->head));
 	Maillon *new = malloc(sizeof(Maillon));
 	new->value = v;
-	new->next = NULL; new->previous = l->tail;
-	*insert_at = new;
-	l->tail = new;
+	new->previous = l->sentinel->previous;
+	new->next = l->sentinel;
+	new->previous->next = new;
+	l->sentinel->previous = new;
 	++(l->size);
 
 	return l;
@@ -31,12 +32,12 @@ List *push_back(List *l, int v) {
 
 
 List *push_front(List *l, int v) {
-	Maillon **insert_at = (l->size ? &(l->head->previous) : &(l->tail));
 	Maillon *new = malloc(sizeof(Maillon));
 	new->value = v;
-	new->next = l->head; new->previous = NULL;
-	*insert_at = new;
-	l->head = new;
+	new->next = l->sentinel->next;
+	new->previous = l->sentinel;
+	new->next->previous = new;
+	l->sentinel->next = new;
 	(++l->size);
 	
 	return l;
@@ -45,15 +46,9 @@ List *push_front(List *l, int v) {
 
 List *pop_back(List *l) {
 	assert(!list_empty(l));
-	Maillon *cell = l->tail;
-	l->tail = cell->previous;
-	if (l->tail) {
-		// != NULL (la tête ou une autre cellule)
-		l->tail->next = NULL;
-	} else {
-		// NULL donc la queue était aussi la tête
-		l->head = l->tail;
-	}
+	Maillon *cell = l->sentinel->previous;
+	l->sentinel->previous = cell->previous;
+	cell->previous->next = l->sentinel;
 	--(l->size);
 	free(cell);
 
@@ -63,15 +58,9 @@ List *pop_back(List *l) {
 
 List *pop_front(List *l) {
 	assert(!list_empty(l));
-	Maillon *cell = l->head;
-	l->head = cell->next;
-	if (l->head) {
-		// != NULL (la queue ou une autre cellule)
-		l->head->previous = NULL;
-	} else {
-		// NULL donc la tête était aussi la queue
-		l->tail = l->head;
-	}
+	Maillon *cell = l->sentinel->next;
+	l->sentinel->next = cell->next;
+	cell->next->previous = l->sentinel;
 	--(l->size);
 	free(cell);
 
@@ -87,19 +76,19 @@ bool list_empty (const List *l) {
 
 int front(const List *l) {
 	assert(!list_empty(l));
-	return l->head->value ;
+	return l->sentinel->next->value ;
 }
  
 
 int back(const List *l) {
 	assert(!list_empty(l));
-	return l->tail->value ;
+	return l->sentinel->previous->value ;
 }
 
 
 int at(const List *l, int p) {
 	assert(!list_empty(l) && 0 <= p && p <= l->size);
-	Maillon *cell = l->head;
+	Maillon *cell = l->sentinel->next;
 
 	while (p--) {
 		cell = cell -> next;
@@ -116,7 +105,7 @@ List *insert_at(List *l , int p, int v) {
 	else if (p == l->size)
 		return push_back(l, v);
 	else {
-		Maillon *cell = l->head;
+		Maillon *cell = l->sentinel->next;
 
 		while (p--) {
 			cell = cell -> next;
@@ -143,7 +132,7 @@ List *remove_at(List *l , int p) {
 	else if (p == l->size)
 		return pop_back(l);
 	else {
-		Maillon *cell = l->head;
+		Maillon *cell = l->sentinel->next;
 
 		while (p--) {
 			cell = cell -> next;
