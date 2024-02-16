@@ -150,6 +150,7 @@ List *remove_at(List *l , int p) {
 		}
 
 		(cell->previous)->next = cell->next;
+		(cell->next)->previous = cell->previous;
 		--(l->size);
 		free(cell);
 
