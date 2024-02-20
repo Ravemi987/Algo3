@@ -6,17 +6,15 @@
 #include "linked_list.h"
 
 
-
-//Creation d’une liste doublement chainee vide
 List *list() {
 	List *l = malloc(sizeof(List));
+	if (l == NULL) return NULL;
 	l->head = l->tail = NULL;
 	l->size = 0;
+
 	return l;
 }
 
-
-//Operateurs d’ajout et de suppression d’un élément à une liste doublement chaînée
 List *push_back(List *l, int v) {
 	Maillon **insert_at = (l->size ? &(l->tail->next) : &(l->head));
 	Maillon *new = malloc(sizeof(Maillon));
@@ -29,7 +27,6 @@ List *push_back(List *l, int v) {
 	return l;
 }
 
-
 List *push_front(List *l, int v) {
 	Maillon **insert_at = (l->size ? &(l->head->previous) : &(l->tail));
 	Maillon *new = malloc(sizeof(Maillon));
@@ -37,124 +34,134 @@ List *push_front(List *l, int v) {
 	new->next = l->head; new->previous = NULL;
 	*insert_at = new;
 	l->head = new;
-	(++l->size);
-	
+	++(l->size);
+
 	return l;
 }
-
 
 List *pop_back(List *l) {
 	assert(!list_empty(l));
-	Maillon *cell = l->tail;
-	l->tail = cell->previous;
+	Maillon *toRemove = l->tail;
+	l->tail = toRemove->previous; // !!!
 	if (l->tail) {
-		// != NULL (la tête ou une autre cellule)
 		l->tail->next = NULL;
 	} else {
-		// NULL donc la queue était aussi la tête
 		l->head = l->tail;
 	}
+	free(toRemove);
 	--(l->size);
-	free(cell);
 
 	return l;
 }
-
 
 List *pop_front(List *l) {
 	assert(!list_empty(l));
-	Maillon *cell = l->head;
-	l->head = cell->next;
+	Maillon *toRemove = l->head;
+	l->head = toRemove->next; // !!!
 	if (l->head) {
-		// != NULL (la queue ou une autre cellule)
 		l->head->previous = NULL;
 	} else {
-		// NULL donc la tête était aussi la queue
 		l->tail = l->head;
 	}
+	free(toRemove);
 	--(l->size);
-	free(cell);
 
 	return l;
 }
 
-
-//Opérateurs d'état du TAD Liste
 bool list_empty (const List *l) {
 	return l->size == 0;
 }
 
-
 int front(const List *l) {
 	assert(!list_empty(l));
-	return l->head->value ;
+	return l->head->value;
 }
- 
 
 int back(const List *l) {
 	assert(!list_empty(l));
-	return l->tail->value ;
+	return l->tail->value;
 }
-
 
 int at(const List *l, int p) {
-	assert(!list_empty(l) && 0 <= p && p <= l->size);
-	Maillon *cell = l->head;
-
-	while (p--) {
-		cell = cell -> next;
-	}
-
-	return cell->value;
-}
-
-
-List *insert_at(List *l , int p, int v) {
-	assert(0 <= p && p <= l->size);
-	if (p == 0)
-		return push_front(l, v);
-	else if (p == l->size)
-		return push_back(l, v);
-	else {
+	assert(!list_empty(l) && p >= 0 && p <= l->size);
+	if (p == 0) {
+		return front(l);
+	} else if (p == l->size) {
+		return back(l);
+	} else {
 		Maillon *cell = l->head;
 
 		while (p--) {
-			cell = cell -> next;
+			cell = cell->next;
+		}
+
+		return cell->value;
+	}
+}
+
+List *insert_at(List *l , int p, int v) {
+	assert(p >= 0 && p <= l->size);
+	if (p == 0) {
+		return push_front(l, v);
+	} else if (p == l->size) {
+		return push_back(l, v);
+	} else {
+		Maillon *cell = l->head;
+
+		while (p--) {
+			cell = cell->next;
 		}
 
 		Maillon *new = malloc(sizeof(Maillon));
-		Maillon *prev = cell->previous;
-		new->previous = prev;
-		new->next = cell;
-		prev->next = new;
-		cell->previous = new;
 		new->value = v;
+		new->next = cell;
+		new->previous = cell->previous;
+		cell->previous->next = new;
+		cell->previous = new;
 		++(l->size);
 
 		return l;
 	}
 }
 
-
 List *remove_at(List *l , int p) {
-	assert(!list_empty(l) && 0 <= p && p <= l->size);
-	if (p == 0)
+	assert(!list_empty(l) && p >= 0 && p <= l->size);
+	if (p == 0) {
 		return pop_front(l);
-	else if (p == l->size)
+	} else if (p == l->size) {
 		return pop_back(l);
-	else {
+	} else {
 		Maillon *cell = l->head;
 
 		while (p--) {
-			cell = cell -> next;
+			cell = cell->next;
 		}
 
-		(cell->previous)->next = cell->next;
-		(cell->next)->previous = cell->previous;
+		Maillon *toRemove = cell;
+		cell->previous->next = cell->next;
+		cell->next->previous = cell->previous;
+		free(toRemove);
 		--(l->size);
-		free(cell);
 
 		return l;
+	}
+}
+
+void freeList(List **l) {
+	if (*l != NULL) {
+		Maillon *toRemove;
+		Maillon *cell = (*l)->head; // !!!
+
+		while(cell != NULL) {
+			toRemove = cell;
+			cell = cell->next;
+			free(toRemove);
+		}
+
+		(*l)->head = (*l)->tail = NULL; // !!!
+		free(*l);
+		(*l) = NULL;
 	}
 }
 
@@ -165,7 +172,6 @@ int main() {
 
 	int i;
 
-	// l'indice démarre à 0 !
 	for(i=0;i<10;i++) l = push_back(l,i);
 	for(i=0;i<l->size;i++) printf("at %d\n",at(l,i) );
 
@@ -223,6 +229,17 @@ int main() {
     printf("Suppression element indice 1 \n");
     l =  remove_at(l, 1);
     for(i=0;i<l->size;i++) printf("at %d\n",at(l,i) );
+
+	freeList(&l2);
+	freeList(&l);
+	freeList(&l);
+
+	if (l == NULL) {
+		printf("Memoire liberee\n");
+	} else {
+		printf("Erreur liberation memoire\n");
+	}
+
 
 return(0);
 

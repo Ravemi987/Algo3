@@ -6,13 +6,13 @@
 
 Queue *createQueue() {
 	Queue *q = malloc(sizeof(Queue));
+	if (q == NULL) return NULL;
 	q->head = 0;
     q->tail = -1;
 	q->size = 0;
 
 	return(q);
 }
-
 
 Queue *push(Queue *q, int v) {
 	assert(q->size < MAX_SIZE);
@@ -21,7 +21,6 @@ Queue *push(Queue *q, int v) {
 	++(q->size);
 	return (q);
 }
-
 
 Queue *pop(Queue *q) {
 	assert(!isEmpty(q));
@@ -35,23 +34,19 @@ bool isEmpty (const Queue *q){
 	return q->size == 0;
 }
 
-
 int getHead(Queue *q) {
 	assert(!isEmpty(q));
 	return q->queue[q->head];
 }
-
 
 int getTail(Queue *q) {
 	assert(!isEmpty(q));
 	return q->queue[q->tail];
 }
 
-
 int getSize(Queue *q) {
 	return q->size;
 }
-
 
 void printQueue(Queue *q) {
 	for (int i = q->head; i <= q->tail; i++) {
@@ -61,8 +56,9 @@ void printQueue(Queue *q) {
 	printf("\n");
 }
 
-
 void freeQueue(Queue **q) {
-	if ((*q) != NULL) free(*q);
-	*q = NULL;
+	if (*q != NULL) {
+		free(*q);
+		*q = NULL;
+	}
 }

@@ -27,7 +27,7 @@ Queue *push(Queue *q, int v);
 
 Queue *pop(Queue *q);
 
-bool isEmpty (const Queue *q);
+bool isEmpty(const Queue *q);
 
 int getHead(Queue *q);
 

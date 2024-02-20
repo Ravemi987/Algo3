@@ -24,7 +24,7 @@ List *push_back(List *l, int v);
 
 List *push_front(List *l, int v);
 
-List *pop_front(List *l);
+List *pop_back(List *l);
 
 List *pop_front(List *l);
 
@@ -39,6 +39,8 @@ int at(const List *l, int p);
 List *insert_at(List *l , int p, int v);
 
 List *remove_at(List *l , int p);
+
+void freeList(List **l);
 
 
 #endif
