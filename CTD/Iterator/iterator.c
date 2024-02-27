@@ -5,14 +5,6 @@
 #include <stdbool.h>
 #include "iterator.h"
 
-#define FORWARD_ITERATION  1
-#define BACWARD_ITERATION 0
-
-typedef struct s_ListIterator ListIterator;
-typedef struct _List List;
-typedef struct _Maillon Maillon;
-
-
 
 struct _Maillon  {
 	int value;
@@ -36,7 +28,7 @@ struct s_ListIterator {
 	/*le premier élément de départ pointé part l'iterator, c'est lui qui donne la direction */
 	Maillon *begin;
 	/* fonction qui passe à l'élément suivant (en accord avec la direction de départ)*/
-	Maillon * (*next)(Maillon *);
+	Maillon * (*next)(Maillon *); /* c'est un pointeur vers une fonction qui prend en param un pt vers un maillon et qui retourne un pt vers un maillon.*/
 };
 
 
@@ -51,7 +43,7 @@ List  *list(){
 
 
 //Operateurs d’ajout et de suppression d’un élément à une liste doublement chaînée
-List *push_back(List *l, int v){
+List *push_front(List *l, int v){
 	
 	Maillon *new = malloc(sizeof(Maillon));
 	new -> value = v;
@@ -121,6 +113,7 @@ Maillon *goto_previous(Maillon *e){
 	return e->previous;
 }
 
+/* Remet le curseur au début*/
 ListIterator *listIterator_begin(ListIterator *i){
 	i->current = i->begin;
 	return i;
@@ -131,7 +124,7 @@ bool listIterator_end(ListIterator *i){
 }
 
 ListIterator *listIterator_next(ListIterator *i){
-	i->current = i->next(i->current);
+	i->current = i->next(i->current); /* i->next = goto_previous || goto_next */
 	return i;
 }
 
@@ -145,14 +138,14 @@ int main(){
 	List* l = list();
 	int i;
 	for(i=10;i>=1;i--){
-			l = push_back(l,i);
+			l = push_front(l,i);
 			printf("Size %d\n",l->size );
 			printf("Head %d\n" ,l->sentinel->previous->value);
 			printf("Last %d\n" ,l->sentinel->next->value);
 	}
 
 
-	//on peut commencer par la première valeure (rappel : on a fait un push back)
+	//on peut commencer par la première valeur (rappel : on a fait un push front)
 	ListIterator* it = listIterator_create(l, 0);
 
     printf("%d\n", listIterator_value(it));

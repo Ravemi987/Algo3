@@ -28,7 +28,7 @@ List* map(List *l, SimpleFunctor f);
 /* Reduce*/
 
 typedef void (*ReduceFunctor)(int, void *);
-List* reduce(List *l, ReduceFunctor f, void *userdata);
+List* reduce(List *l, ReduceFunctor f, void *env);
 
 
 /* List*/

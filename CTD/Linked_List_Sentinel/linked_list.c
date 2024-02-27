@@ -53,7 +53,7 @@ List *pop_back(List *l) {
 List *pop_front(List *l) {
 	assert(!list_empty(l));
 	Maillon *toRemove = l->sentinel->next;
-	toRemove->next->previous = l->sentinel; // l->sentinel->next->previous = l->sentinel si on inverse les deux lignes
+	toRemove->next->previous = l->sentinel; // l->sentinel->next->previous = l->sentinel si on inverse avec la ligne d'après
 	l->sentinel->next = toRemove->next;
 	free(toRemove);
 	--(l->size);
