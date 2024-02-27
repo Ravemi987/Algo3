@@ -21,7 +21,7 @@ List *push_back(List *l, int v) {
 	Maillon *new = malloc(sizeof(Maillon));
 	new->value = v;
 	new->next = l->sentinel; new->previous = l->sentinel->previous;
-	l->sentinel->previous->next = new; // !!!
+	l->sentinel->previous->next = new; // !!! new->previous->next = new
 	l->sentinel->previous = new;
 	++(l->size);
 
@@ -32,7 +32,7 @@ List *push_front(List *l, int v) {
 	Maillon *new = malloc(sizeof(Maillon));
 	new->value = v;
 	new->next = l->sentinel->next; new->previous = l->sentinel;
-	l->sentinel->next->previous = new; // !!!
+	l->sentinel->next->previous = new; // !!! new->next->previous = new
 	l->sentinel->next = new;
 	++(l->size);
 
@@ -53,7 +53,7 @@ List *pop_back(List *l) {
 List *pop_front(List *l) {
 	assert(!list_empty(l));
 	Maillon *toRemove = l->sentinel->next;
-	toRemove->next->previous = l->sentinel;
+	toRemove->next->previous = l->sentinel; // l->sentinel->next->previous = l->sentinel si on inverse les deux lignes
 	l->sentinel->next = toRemove->next;
 	free(toRemove);
 	--(l->size);
@@ -159,6 +159,46 @@ void freeList(List **l) {
 }
 
 
+
+List* map(List* l, SimpleFunctor f) {
+	for (Maillon* e = l->sentinel->next; e != l->sentinel; e = e->next) {
+		e->value = f(e->value);
+	}
+
+	return l;
+}
+
+List* reduce(List* l, ReduceFunctor f, void* userEnv) {
+	for (Maillon* e = l->sentinel->next; e != l->sentinel; e = e->next) {
+		f(e->value, userEnv);
+	}
+
+	return l;
+}
+
+
+
+int print_e(int e) {
+	printf("%d\n", e);
+	return e;
+}
+
+int mult_e(int e) {
+	e *= e;
+	return e;
+}
+
+void accumulate(int i, void* env) {
+	int *r = (int*)env;
+	*r += i;
+}
+
+void multiplicate(int i, void* env) {
+	int *r = (int*)env;
+	*r *= i;
+}
+
+
 int main() {
 
 	List* l = list();
@@ -202,7 +242,17 @@ int main() {
 
 	printf("###########################\n");
 
+	printf("###########################\n");	
+	printf("###########################\n");
+    printf("Map / Reduce \n");
 
+	l = map(l, print_e);
+	printf("\n");
+	int s = 0, p = 0;
+	l = reduce(l, accumulate, &s);
+	printf("sum : %d\n", s);
+	l = reduce(l, multiplicate, &p);
+	printf("mult : %d\n", p);
 
 	printf("###########################\n");	
 	printf("###########################\n");

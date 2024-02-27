@@ -18,6 +18,21 @@ struct _List {
 
 };
 
+
+/* Map */
+
+typedef int (*SimpleFunctor)(int);
+List* map(List *l, SimpleFunctor f);
+
+
+/* Reduce*/
+
+typedef void (*ReduceFunctor)(int, void *);
+List* reduce(List *l, ReduceFunctor f, void *userdata);
+
+
+/* List*/
+
 List *list();
 
 List *push_back(List *l, int v);
