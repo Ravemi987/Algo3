@@ -10,7 +10,7 @@ else
 	LDFLAGS +=
 endif
 
-EXEC=list_test
+EXEC=expr_ex1
 SRC= $(wildcard *.c)
 OBJ= $(SRC:.c=.o)
 
@@ -36,10 +36,10 @@ clean:
 mrproper: clean
 	@rm -rf $(EXEC) documentation/html
 
-doc: list.h main.c
-	@doxygen documentation/TP3
+doc: stack.h
+	@doxygen documentation/TP2
 	
-main.o:  list.h
+main.o:  token.h stack.h
 
 DELIVER_FMT=$(shell date "+$(shell id -un)_%d-%m-%y_%Hh%Mm%Ss")
 
