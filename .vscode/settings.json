@@ -11,6 +11,7 @@
         "fstream": "c",
         "istream": "c",
         "streambuf": "c",
-        "variant": "c"
+        "variant": "c",
+        "assert.h": "c"
     }
 }

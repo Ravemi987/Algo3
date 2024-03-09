@@ -1,0 +1,23 @@
+Sorte: Queue
+Utilise: Item, bool
+
+Opérateurs Constructeurs:
+    queue : -> Queue
+    push : Queue x Item -> Queue
+
+Opérateurs:
+    isEmpty : Queue -> bool
+    top : Queue -> Item
+    pop : Queue -> Queue
+
+Pré-conditions:
+    top(q) <=> not isEmpty(q)
+    pop(q) <=> not isEmpty(q)
+
+Axiomes:
+    isEmpty(queue()) = true
+    isEmpty(push(q, e)) = false
+    top(push(queue(), e)) = e
+    top(push(q, e)) = top(q)
+    pop(push(queue(), e)) = queue()
+    pop(push(q, e)) = push(pop(q), e)

@@ -1,0 +1,21 @@
+Sorte: Stack
+Utilise: Item, bool
+
+Opérateurs Constructeurs:
+    createStack : -> Stack
+    push : Stack x Item -> Stack
+
+Opérateurs:
+    isEmpty : Stack -> bool
+    top : Stack -> Item
+    pop : Stack -> Stack
+
+Pré-conditions:
+    top(s) <=> not isEmpty(s)
+    pop(s) <=> not isEmpty(s)
+
+Axiomes:
+    isEmpty(createStack()) = true
+    isEmpty(push(s, e)) = false
+    top(push(s, e)) = e
+    pop(push(s, e)) = s

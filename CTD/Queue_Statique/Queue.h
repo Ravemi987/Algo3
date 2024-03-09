@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "Queue.h"
-#include <assert.h>
-
 #define MAX_SIZE 16
 
 

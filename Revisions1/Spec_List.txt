@@ -1,0 +1,78 @@
+Sorte: List
+Utilise: Item, int, bool
+
+Opérateurs Constructeurs:
+    list : -> List
+    push_front : List x Item -> List
+    push_back : List x Item -> List
+    insert_at : List x int x Item -> List
+    
+Opérateurs:
+    size : List -> int
+    is_empty : List -> bool
+    pop_front : List -> List
+    pop_back : List -> List
+    remove_at : List x int -> List
+    front : List -> Item
+    back : List -> Item
+    ith : List x int -> Item
+
+Pré-conditions:
+    pop_back(l) <=> not is_empty(l)
+    pop_front(l) <=> not is_empty(l)
+    insert_at(l, i, e) <=> (0 <= i && i <= size(l))
+    remove_at(l, i) <=> (0 <= i && i <= size(l) && not is_empty(l))
+    front(l) <=> not is_empty(l)
+    back(l) <=> not is_empty(l)
+    ith(l, i) <=> (0 <= i && i <= size(l) && not is_empty(l))
+
+Axiomes:
+    size(list()) = 0
+    size(push_front(l, e)) = size(l) + 1
+    size(push_back(l, e)) = size(l) + 1
+    size(insert_at(l, i, e)) = size(l) + 1
+
+    is_empty(list()) = True
+    is_empty(push_front(l, e)) = false
+    is_empty(push_back(l, e)) = false
+    is_empty(insert_at(l, i, e)) = false
+    
+    pop_front(push_front(l, e)) = l
+    pop_front(push_back(l, e)) = push_back(pop_front(l), e)
+    i=0 => pop_front(insert_at(l, i, e)) = l
+    i!=0 => pop_front(insert_at(l, i, e)) = insert_at(pop_front(l), i , e)
+
+    pop_back(push_front(l, e)) = push_front(pop_back(l), e)
+    pop_back(push_back(l, e)) = l
+    i=size(l) => pop_back(insert_at(l, i, e)) = l;
+    i!=size(l) => pop_back(insert_at(l, i, e)) = insert_at(pop_back(l), i, e)
+
+    i=0 => remove_at(push_front(l, e), i) = l
+    i!=0 => remove_at(push_front(l, e), i) = push_front(remove_at(l, i), e)
+    i=size(l) => remove_at(push_back(l, e), i) = l
+    i!=size(l) => remove_at(push_back(l, e), i) = push_back(remove_at(l, i), e)
+    remove_at(insert_at(l, i, e), i) = l
+    remove_at(insert_at(l, i, e), j) = insert_at(remove_at(l, j), i, e)
+
+    front(push_front(l, e)) = e
+    front(push_back(l, e)) = front(l)
+    i=0 => front(insert_at(l, i, e)) = e
+    i!=0 => front(insert_at(l, i, e)) = front(l)
+
+    back(push_front(l, e)) = back(l)
+    back(push_back(l, e)) = e
+    i=size(l) => back(insert_at(l, i, e)) = e
+    i!=size(l) =>back(insert_at(l, i, e)) = back(l)
+
+    i=0 => ith(push_front(l, e), i) = e
+    i!=0 => ith(push_front(l, e), i) = ith(l, i) !
+    i=size(l) => ith(push_back(l, e), i) = e
+    i!=size(l) => ith(push_back(l, e), i) = ith(l, i) !
+    ith(insert_at(l, i, e), i) = e
+    ith(insert_at(l, i, e), j) = ith(l, j) !
+
+    push_front(push_back(l, x), y) = push_back(push_front(l, y), x)
+    i=size(l) => insert_at(push_back(l, x), i, y) = push_back(push_back(l, x), y)
+    i!=size(l) => insert_at(push_back(l, x), i, y) = push_back(insert_at(l, i, y), x)
+    i=size(l) => insert_at(push_front(l, x), i, y) = push_front(push_front(l, x), y)
+    i!=size(l) => insert_at(push_front(l, x), i, y) = push_front(insert_at(l, i, y), x)
