@@ -1,0 +1,9 @@
+Partie 6:
+
+la structure de donnée SubList doit être déclarée dans le fichier list.c,
+c'est-à-dire l'interface privée. En effet, comme nous pouvons d'ailleurs le voir dans le fichier
+main.c, l'utilisateur n'a pas besoin d'avoir connaissance de cette structure. Il n'utilisera que le TAD
+List pour déclarer des variables et appliquer dessus la fonction sort.
+
+Les trois fonctions list_split, list_merge et list_mergesort doivent donc être déclarée également
+dans le fichier list.c
