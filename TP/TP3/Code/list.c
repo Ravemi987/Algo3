@@ -215,14 +215,24 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 /*-----------------------------------------------------------------*/
 
 SubList list_split(SubList l) {
-	LinkedElement *start = l->head;
-	LinkedElement *end = l->tail;
-	while (start->next != end) {
-		start = start->next;
-		end = end->previous;
+	/* Le pointeur slow avance deux fois plus lentement que le pointeur fast*/
+	LinkedElement *slowPointer = l->head;
+	LinkedElement *fastPointer = l->head->next;
+
+	/* Lorsque fast a atteint la fin de la list, slow pointe le milieu */
+	while (fastPointer != NULL) {
+		fastPointer = fastPointer->next;
+		if(fastPointer != NULL) {
+			slowPointer = slowPointer->next;
+			fastPointer = fastPointer->next;
+		}
 	}
-	l->head = start;
-	l->tail = end;
+
+	/* La queue de la liste pointe vers la sous-liste droite*/
+	l->tail = slowPointer->next;
+	/* Les sous-listes de gauche et de droite sont de nouvelles listes
+	 * donc slow pointe la queue de la sous-liste gauche */
+	slowPointer->next = NULL;
 	return l;
 }
 
@@ -234,16 +244,23 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 	} else if (rightlist == NULL) {
 		return leftlist;
 	} else {
-		SubList templist;
+		SubList *tmp = malloc(sizeof(SubList));
 		if (f(leftlist->head->value, rightlist->head->value)) {
-			templist->head = leftlist->head->next;
-			templist->tail = leftlist->tail;
-			leftlist = list_merge(templist, rightlist, f);
+			/* tmp est la sous-liste dont la tête de la sous-liste gauche est décalée*/
+			(*tmp)->head = leftlist->head->next;
+			(*tmp)->tail = leftlist->tail;
+			leftlist = list_merge(*tmp, rightlist, f);
+			/* On raccorde la nouvelle tête avec le reste de la liste qui sera triée */
+			leftlist->head->next->previous = leftlist->head;
+			leftlist->head->previous = NULL;
 			return leftlist;
 		} else {
-			templist->head = rightlist->head->next;
-			templist->tail = rightlist->tail;
-			rightlist = list_merge(leftlist, templist, f);
+			/* On fait la même chose que pour la sous-liste gauche */
+			(*tmp)->head = rightlist->head->next;
+			(*tmp)->tail = rightlist->tail;
+			rightlist = list_merge(leftlist, *tmp, f);
+			rightlist->head->next->previous = leftlist->head;
+			rightlist->head->previous = NULL;
 			return rightlist;
 		}
 	}
@@ -253,16 +270,30 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 
 SubList list_mergesort(SubList l, OrderFunctor f) {
 	if (l->head == NULL || l->head->next == NULL) {
-		return l->head;
+		return l;
 	} else {
-		
+		SubList splitList = list_split(l);
+		SubList *leftlist = malloc(sizeof(SubList));
+		(*leftlist)->head = l->head;
+		(*leftlist)->tail = splitList->tail;
+		SubList *rightlist = malloc(sizeof(SubList));
+		(*rightlist)->head = splitList->tail;
+		(*rightlist)->tail = l->tail;
+		return list_merge(list_mergesort(*leftlist, f), list_mergesort(*rightlist, f), f);
 	}
 }
 
 /*-----------------------------------------------------------------*/
 
 List* list_sort(List* l, OrderFunctor f) {
-	(void)f;
+	SubList *sl = malloc(sizeof(SubList));
+	(*sl)->head = l->sentinel->next;
+	(*sl)->tail = l->sentinel->previous;
+	(*sl) = list_mergesort(*sl, f);
+	l->sentinel->next = (*sl)->head;
+	l->sentinel->previous = (*sl)->tail;
+	l->sentinel->next->previous = l->sentinel;
+	l->sentinel->previous->next = l->sentinel;
 	return l;
 }
 
