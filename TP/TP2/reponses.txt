@@ -6,6 +6,8 @@ fournies par l'interface publique du gestionnaire de collection (ici le module Q
 on appelle freeTokenQueue lorsque le traitement sur une ligne est terminé.
 
 
+isNumValue : Foncion équivalente à isdigit mais le choix est fait de ne pas modifier les inclusions.
+
 Fonction getTopAndPop(s) permet d'éviter la redondance de code:
 Token* t = (Token*)stackTop(s);
 s = stackPop(s);

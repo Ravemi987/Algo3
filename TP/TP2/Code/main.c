@@ -16,6 +16,10 @@
 
 /* ========================================================================================= */
 
+/** Test si un caractère est un symbole pouvant être évalué par le programme
+ * @param c Le caractère à tester.
+ * @return true si le caractère est un élément syntaxique supporté par le programme false sinon
+ */
 bool isSymbol(char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')';
 }
@@ -23,9 +27,8 @@ bool isSymbol(char c) {
 /* ========================================================================================= */
 
 /** Test si un caractère est un chiffre.
- * @param c: Le caractère à tester.
- * @return : true si le caractère peut être converti en chiffre false sinon.
- * @note Foncion équivalente à isdigit mais le choix est fait de ne pas modifier les inclusions.
+ * @param c Le caractère à tester.
+ * @return true si le caractère peut être converti en chiffre false sinon.
  */
 bool isNumValue(char c) {
 	return 48 <= c && c <= 57;
@@ -34,29 +37,27 @@ bool isNumValue(char c) {
 /* ========================================================================================= */
 
 /** Transforme une chaîne de caractères en file de tokens en notation infixe.
- * @param expression : Chaîne de cractères quelconque à traiter.
- * @return : File dont tous les oprétateurs, parenthèses et nombres de la chaîne sont transformés en tokens.
- * @see isSymbol
- * @see isNumValue
+ * @param expression Chaîne de cractères quelconque à traiter.
+ * @return File dont tous les opérateurs, parenthèses et nombres de la chaîne sont transformés en tokens.
  */
 Queue* stringToTokenQueue(const char* expression) {
-	Queue* queue = createQueue();
+	Queue* queue = createQueue(); /* File de tokens qui contiendra le résultat de la transformation */ 
 	Token* token;
 	const char* curpos = expression;
-	const char *numberPtr;
-	int valueLength;
+	const char *numberPtr; /* pointeur temporaire permettant de délimiter des valeurs numériques */
+	int valueLength; /* compteur du nombre de caractères composant une valeur numérique*/
 
 	while (*curpos != '\0') {
-		/* Si curpos pointe vers n'importe quel caractère invalide, on l'incrémente. */
 		if (!isSymbol(*curpos) && !isNumValue(*curpos)) curpos++;
 		else {
 			if (isSymbol(*curpos)) {
-				token = createTokenFromString(curpos, 1);
+				token = createTokenFromString(curpos, 1); /* Le token ne contient qu'un seul caractère*/
 			} else {
-				valueLength = 0;
-				/* On utilise un pointeur temporaire pour trouver la longueur du nombre. */
-				numberPtr = curpos;
+				/* curpos pointe sur une valeur numérique */
+				valueLength = 0; /* Initisalisation du compteur à 0 */
+				numberPtr = curpos; /* Recherche de la fin du nombre à partir du curseur */
 				while (isNumValue(*numberPtr) || *numberPtr == '.') {
+					/* Si le caractère est un chiffre ou un nombre flottant, on incrémente la longeure et on passe au suivant */
 					valueLength++;
 					numberPtr++;
 				}
@@ -72,8 +73,8 @@ Queue* stringToTokenQueue(const char* expression) {
 /* ========================================================================================= */
 
 /** Affiche le token représenté par le pointeur non typé 'e' sur le flux de sortie 'f'
- * @param f : Flux de sortie ouvert (ici stdout).
- * @param e : pointeur non typé représentant le token.
+ * @param f Flux de sortie ouvert (ici stdout).
+ * @param e pointeur non typé représentant le token.
  */
 void printToken(FILE *f, const void* e) {
 	tokenDump(f, (Token*)e);
@@ -82,9 +83,8 @@ void printToken(FILE *f, const void* e) {
 /* ========================================================================================= */
 
 /** Renvoie l'élément au top d'une pile après l'avoir supprimé de la pile.
- * @param s : Pile dont on doit pop l'élément en tête
- * @return : token correspondant au top de la pile avant le pop.
- * @note : Cette fonction permet d'éviter la redondance de code.
+ * @param s Pile dont on doit pop l'élément en tête
+ * @return token correspondant au top de la pile avant le pop.
  */
 Token* getTopAndPop(Stack* s) {
 	Token* t = (Token*)stackTop(s);
@@ -94,12 +94,8 @@ Token* getTopAndPop(Stack* s) {
 
 /* ========================================================================================= */
 
-/** Libère les ressources (token) allouées à l'extérieur
- * du gestionnaire de collection (la file).
- * @param : Pointeur vers une file de tokens.
- * @note : Cette fonction n'est utile que pour répondre à la question 3 de l'exercice 1.
- * Dans la suite, les algorithmes des fonctions shuntingYard et evaluateExpression libèrent
- * naturellement les ressources pas à pas.
+/** Libère les ressources (token) allouées à l'extérieur du gestionnaire de collection (la file).
+ * @param Pointeur vers une file de tokens.
  */
 void freeTokenQueue(ptrQueue* q) {
 	Token* t;
@@ -114,14 +110,34 @@ void freeTokenQueue(ptrQueue* q) {
 
 /* ========================================================================================= */
 
+/** Test si un token est une parenthèse gauche
+ * @param t Le token à tester
+ * @return true si le symbole correspondant au token est un parenthèse gauche, false sinon
+ */
+bool tokenIsLeftParenthesis(Token *t) {
+	return tokenIsParenthesis(t) && (tokenGetParenthesisSymbol(t) == '(');
+} 
+
+/* ========================================================================================= */
+
+/** Test si un token est une parenthèse droite
+ * @param t Le token à tester
+ * @return true si le symbole correspondant au token est un parenthèse droite, false sinon
+ */
+bool tokenIsRightParenthesis(Token *t) {
+	return tokenIsParenthesis(t) && (tokenGetParenthesisSymbol(t) == ')');
+}
+
+/* ========================================================================================= */
+
 /** Transforme une expression définie par une file de tokens en notation infixe, 
- * en une file repréesentant l’expression en notation postfixe.
- * @param infix : File de tokens en notation infixe.
- * @return : File de tokens en notation postfixe.
+ * en une file représentant l’expression en notation postfixe.
+ * @param infix File de tokens en notation infixe.
+ * @return File de tokens en notation postfixe.
  */
 Queue* shuntingYard(Queue* infix) {
-	Queue* postfix = createQueue();
-	Stack* opStack = createStack(queueSize(infix));
+	Queue* postfix = createQueue(); /* File qui contiendra les tokens en notation postfixe */
+	Stack* opStack = createStack(queueSize(infix)); /* Pile temporaire utiliée par l'algorithme */
 
 	while (!queueEmpty(infix)) {
 		Token* token = (Token*)queueTop(infix);
@@ -133,25 +149,23 @@ Queue* shuntingYard(Queue* infix) {
 				&& (tokenGetOperatorPriority((Token*)stackTop(opStack)) > tokenGetOperatorPriority(token)
 				|| (tokenGetOperatorPriority((Token*)stackTop(opStack)) == tokenGetOperatorPriority(token) 
 				&& tokenOperatorIsLeftAssociative(token) 
-				&& (!tokenIsParenthesis((Token*)stackTop(opStack)) 
-				|| tokenGetParenthesisSymbol((Token*)stackTop(opStack)) != '('))) ) {
+				&& !tokenIsLeftParenthesis((Token*)stackTop(opStack)))) ) {
 				postfix = queuePush(postfix, getTopAndPop(opStack));
 			}
 			opStack = stackPush(opStack, token);
 		}
-		if (tokenIsParenthesis(token) && tokenGetParenthesisSymbol(token) == '(') {
+		if (tokenIsLeftParenthesis(token)) {
 			opStack = stackPush(opStack, token);
 		} 
-		if (tokenIsParenthesis(token) && tokenGetParenthesisSymbol(token) == ')') {
-			while (!stackEmpty(opStack) && (!tokenIsParenthesis((Token*)stackTop(opStack))
-				|| (tokenGetParenthesisSymbol((Token*)stackTop(opStack)) != '('))) {
+		if (tokenIsRightParenthesis(token)) {
+			while (!stackEmpty(opStack) && !tokenIsLeftParenthesis((Token*)stackTop(opStack))) {
 				postfix = queuePush(postfix, getTopAndPop(opStack));
 			}
 			if (!stackEmpty(opStack)) {
-				/* Si la pile n'est pas vide, il y a une parenthèse gauche en tête
-				 * que l'on doit supprimer. Il faut veiller à libérer le token. */
-				Token* toDelete = (Token*)stackTop(opStack);
+				/* Si la pile n'est pas vide, l'expression est mal parenthésée */
+				Token* toDelete = (Token*)stackTop(opStack); /* Récupération de la parenthèse gauche à supprimer */
 				opStack = stackPop(opStack);
+				/* Libération des tokens qui ne seront plus utilisés */
 				deleteToken(&toDelete);
 				deleteToken(&token);
 			}
@@ -175,10 +189,10 @@ Queue* shuntingYard(Queue* infix) {
 /* ========================================================================================= */
 
 /** Evalue l'application d'un opérateur sur deux opérandes.
- * @param arg1 : Token dont le type est un nombre et la valeur est la première opérande du calcul.
- * @param arg2 : Token dont le type est un nombre et la valeur est la seconde opérande du calcul.
- * @param op : Token dont le type est un opérateur à appliquer aux deux opérandes.
- * @return : Nouveau token résultat de l'applcation de l'opérateur sur les deux nombres.
+ * @param arg1 Token dont le type est un nombre et la valeur est la première opérande du calcul.
+ * @param arg2 Token dont le type est un nombre et la valeur est la seconde opérande du calcul.
+ * @param op Token dont le type est un opérateur à appliquer aux deux opérandes.
+ * @return Nouveau token résultat de l'application de l'opérateur sur les deux nombres.
  */
 Token* evaluateOperator(Token* arg1, Token* op, Token* arg2) {
 	float operand1 = tokenGetValue(arg1);
@@ -196,39 +210,42 @@ Token* evaluateOperator(Token* arg1, Token* op, Token* arg2) {
 /* ========================================================================================= */
 
 /** Renvoie la valeur de l'évaluation d'une expression arithmétique
- * représentée par une file de tokens en notation postfixe.
- * @param postfix : File de tokens en notation postfixe.
- * @return : valeur de l'expression arithmétique
+ * représentée par une file de tokens en notation postfixe (algorithme d'évaluation en notation Polonaise inversée).
+ * @param postfix File de tokens en notation postfixe.
+ * @return valeur de l'expression arithmétique
  */
 float evaluateExpression(Queue* postfix) {
-	/* Création d'une pile dont la taille est la même que la file en paramètre */
-	Stack* s = createStack(queueSize(postfix));
+	/* Création d'une pile temporaire de nombres, utilisée par l'algorithme */
+	Stack* stack = createStack(queueSize(postfix));
 	Token *token, *operand2, *operand1, *result;
 	while (!queueEmpty(postfix)) {
 		token = (Token*)queueTop(postfix);
 		if (tokenIsOperator(token)) {
-			operand2 = getTopAndPop(s);
-			operand1 = getTopAndPop(s);
+			/* Le token est un opérateur, on récupère les deux éléments en tête de pile */
+			operand2 = getTopAndPop(stack);
+			operand1 = getTopAndPop(stack);
+			/* On évalue l'application de l'opérateur sur ces éléments (opérandes)*/
 			result = evaluateOperator(operand1, token, operand2);
-			s = stackPush(s, result);
-			/* On libère les tokens qui ne seront plus utilisés */
+			/* On push sur la pile le résultat */
+			stack = stackPush(stack, result);
+			/* Libération des tokens qui ne seront plus utilisés */
 			deleteToken(&operand2);
 			deleteToken(&operand1);
 			deleteToken(&token);
 		}
 		else {
-			s = stackPush(s, token);
+			/* On stocke toutes les opérandes dans la pile temporaire */
+			stack = stackPush(stack, token);
 		}
 		postfix = queuePop(postfix);
 		
 	}
-	/* On créé un pointeur vers le resultat final (dernier élément de la pile)*/
-	Token* lastToken = (Token*)stackTop(s);
-	/* On récuprère la valeur de ce token qui sera celle retournée */
-	float evalValue = tokenGetValue(lastToken);
-	/* On libère ce dernier élément ainsi que la pile (maintenant vide) créée au départ */
+	/* Création d'un pointeur vers le resultat final (dernier élément de la pile) */
+	Token* lastToken = (Token*)stackTop(stack);
+	float evalValue = tokenGetValue(lastToken); /* Récupération de la valeur de ce token */
+	/* On libère ce dernier élément ainsi que la pile temporaire (maintenant vide) */
 	deleteToken(&lastToken);
-	deleteStack(&s);
+	deleteStack(&stack);
 	//deleteQueue(&postfix);
 	return evalValue;
 }
@@ -236,25 +253,17 @@ float evaluateExpression(Queue* postfix) {
 /* ========================================================================================= */
 
 /** Lit dans le fichier ouvert 'input' des chaînes de caractères correspondant
- * à des expressions arithmétiques et affiche le résultat des appels aux différentes
- * fonctions de traitement:
- * 	- conversion de la chaîne en une file de tokens
- * 	- traitement de la file avec l'algorithme de Shunting Yard
- * 	- evaluation de l'expression arithmétique
- * @param input : Flux d'entrée ouvert dans le programme principal (fichier).
- * @see stringToTokenQueue
- * @see shuntingYard
- * @see evaluateExpression
- * @see printToken
+ * à des expressions arithmétiques et affiche le résultat des appels aux différentes fonctions de traitement:
+ * @param input Flux d'entrée ouvert dans le programme principal (fichier).
  * @note Cette fonction gère la libération mémoire de toutes les fonctions utlisées.
  */
 void computeExpressions(FILE* input) {
 	char* buffer;
 	size_t bufsize = (size_t)BUFSIZE;
-	size_t string;
-	Queue* queueInfix;
-	Queue* queuePostfix;
-	float evaluationValue;
+	size_t expression; /* Chaîne de caractères lue à partir d'une ligne d'un fichier */
+	Queue* queueInfix; /* File de tokens en notation infixe */
+	Queue* queuePostfix; /* File de tokens en notation infixe */
+	float evaluationValue; /* valeur d'une expression arithmétique réprésentée par une chaîne de caractères */
 
 	buffer = (char *)malloc(bufsize * sizeof(char));
 	/* Traite le cas rare où le buffer ne peut pas accéder à l'espace mémoire demandé. */
@@ -263,24 +272,27 @@ void computeExpressions(FILE* input) {
 		exit(MALLOC_ERROR);
 	}
 
-	string = getline(&buffer, &bufsize, input);
+	/* On stocke l'expression dans le buffer*/
+	expression = getline(&buffer, &bufsize, input);
 
 	while (!feof(input)) {
-		/* Si la longueur de la chaîne récupéree est inférieure à 2, 
-		 * on ne la traite pas (on pourrait considérer des opérateurs unaires). */
-		if (string > 1) {
+		/* On ne traite que les expressions arithmétiques contenant au moins 2 caractères */
+		if (expression > 1) {
 			printf("Input\t : %s", buffer);
 
+			/* conversion de la chaîne en une file de tokens */
 			queueInfix = stringToTokenQueue(buffer);
 			printf("Infix\t : ");
 			queueDump(stdout, queueInfix, printToken);
 			printf("\n");
 
+			/* conversion en notation postfixe avec l'algorithme de Shunting Yard */
 			queuePostfix = shuntingYard(queueInfix);
 			printf("Postfix\t : ");
 			queueDump(stdout, queuePostfix, printToken);
 			printf("\n");
 
+			/* évaluation à l'aide de l'algorithme d'évaluation en notation Polonaise inversée */ 
 			evaluationValue = evaluateExpression(queuePostfix);
 			printf("Evaluate : %f", evaluationValue);
 			printf("\n\n");
@@ -291,7 +303,7 @@ void computeExpressions(FILE* input) {
 			// freeTokenQueue(&queueInfix);
 			// freeTokenQueue(&queuePostfix);
 		}
-		string = getline(&buffer, &bufsize, input);
+		expression = getline(&buffer, &bufsize, input);
 	}
 
 	free(buffer);
