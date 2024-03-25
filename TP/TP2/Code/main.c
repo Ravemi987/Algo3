@@ -57,7 +57,7 @@ Queue* stringToTokenQueue(const char* expression) {
 				valueLength = 0; /* Initisalisation du compteur à 0 */
 				numberPtr = curpos; /* Recherche de la fin du nombre à partir du curseur */
 				while (isNumValue(*numberPtr) || *numberPtr == '.') {
-					/* Si le caractère est un chiffre ou un nombre flottant, on incrémente la longeure et on passe au suivant */
+					/* Si le caractère est un chiffre ou un nombre flottant, on incrémente la longueure et on passe au suivant */
 					valueLength++;
 					numberPtr++;
 				}
