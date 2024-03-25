@@ -16,8 +16,6 @@ BinaryTree *btree_create(){
 	return NULL;
 }
 
-
-
 BinaryTree *btree_cons(BinaryTree *left, BinaryTree *right, int root){
 	BinaryTree *t = malloc(sizeof(BinaryTree));
 	t->parent = NULL;
