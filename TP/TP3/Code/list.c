@@ -248,24 +248,17 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 	new->previous = NULL;
 
 	while (leftlist.head != NULL || rightlist.head != NULL) {
-		if (!leftlist.head) {
-			new->next = rightlist.head;
-			rightlist.head = rightlist.head->next;
-		} else if (!rightlist.head) {
+		if (!rightlist.head || (leftlist.head && f(leftlist.head->value, rightlist.head->value))) {
 			new->next = leftlist.head;
 			leftlist.head = leftlist.head->next;
 		} else {
-			if (f(leftlist.head->value, rightlist.head->value)) {
-				new->next = leftlist.head;
-				leftlist.head = leftlist.head->next;
-			} else {
-				new->next = rightlist.head;
-				rightlist.head = rightlist.head->next;
-			}
+			new->next = rightlist.head;
+			rightlist.head = rightlist.head->next;
 		}
 		new->next->previous = new;
 		new = new->next;
 	}
+	
 	result.tail = new;
 	new->next = NULL;
 
