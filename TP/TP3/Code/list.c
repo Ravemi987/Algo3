@@ -213,7 +213,7 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 /*-----------------------------------------------------------------*/
 
 SubList list_split(SubList l) {
-	SubList temp;
+	SubList temp = l;
 	/* Le pointeur slow va avancer deux fois plus lentement que le pointeur fast*/
 	LinkedElement *slowPointer = l.head;
 	LinkedElement *fastPointer = l.head->next;
@@ -229,14 +229,6 @@ SubList list_split(SubList l) {
 	temp.head = slowPointer;
 	temp.tail = slowPointer->next;
 	slowPointer->next = NULL;
-	for (LinkedElement *e = temp.head; e != NULL; e = e->next) {
-		printf("%d ", e->value);
-	}
-	printf("\n");
-	for (LinkedElement *e = temp.tail; e != NULL; e = e->next) {
-		printf("%d ", e->value);
-	}
-	printf("\n");
 	return temp;
 }
 
@@ -253,35 +245,30 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 	}
 
 	LinkedElement *new = result.head;
+	new->previous = NULL;
 
-	while (leftlist.head->next && rightlist.head->next) {
-		if (f(leftlist.head->value, rightlist.head->value)) {
+	while (leftlist.head != NULL || rightlist.head != NULL) {
+		if (!leftlist.head) {
+			new->next = rightlist.head;
+			rightlist.head = rightlist.head->next;
+		} else if (!rightlist.head) {
 			new->next = leftlist.head;
-			new = new->next;
 			leftlist.head = leftlist.head->next;
 		} else {
-			new->next = rightlist.head;
-			new = new->next;
-			rightlist.head = rightlist.head->next;
+			if (f(leftlist.head->value, rightlist.head->value)) {
+				new->next = leftlist.head;
+				leftlist.head = leftlist.head->next;
+			} else {
+				new->next = rightlist.head;
+				rightlist.head = rightlist.head->next;
+			}
 		}
+		new->next->previous = new;
+		new = new->next;
 	}
-	if (rightlist.head->next) {
-		while (rightlist.head->next) {
-			new->next = rightlist.head;
-			new = new->next;
-			rightlist.head = rightlist.head->next;
-		}
-		result.tail = rightlist.head;
-	} else if (leftlist.head->next) {
-		while (leftlist.head->next) {
-			new->next = leftlist.head;
-			new = new->next;
-			leftlist.head = leftlist.head->next;
-		}
-		result.tail = leftlist.head;
-	} else {
-		result.tail = new;
-	}
+	result.tail = new;
+	new->next = NULL;
+
 	return result;
 }
 
@@ -306,6 +293,8 @@ List* list_sort(List* l, OrderFunctor f) {
 	SubList sl, result;
 	sl.head = l->sentinel->next;
 	sl.tail = l->sentinel->previous;
+	sl.tail->next = NULL;
+	sl.head->previous = NULL;
 	result = list_mergesort(sl, f);
 	l->sentinel->next = result.head;
 	l->sentinel->previous = result.tail;
