@@ -16,14 +16,14 @@
 
 /* ========================================================================================= */
 
-/*Test si un caractère est un symbole pouvant être évalué par le programme */
+/* Teste si un caractère est un symbole pouvant être évalué par le programme */
 bool isSymbol(char c) {
 	return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')';
 }
 
 /* ========================================================================================= */
 
-/** Test si un caractère est un chiffre. */
+/* Teste si un caractère est un chiffre. */
 bool isNumValue(char c) {
 	return 48 <= c && c <= 57;
 }
@@ -63,7 +63,7 @@ Queue* stringToTokenQueue(const char* expression) {
 
 /* ========================================================================================= */
 
-/** Affiche le token représenté par le pointeur non typé 'e' sur le flux de sortie 'f' */
+/* Affiche le token représenté par le pointeur non typé 'e' sur le flux de sortie 'f' */
 void printToken(FILE *f, const void* e) {
 	tokenDump(f, (Token*)e);
 }
@@ -93,14 +93,14 @@ void freeTokenQueue(ptrQueue* q) {
 
 /* ========================================================================================= */
 
-/*Test si un token est une parenthèse gauche */
+/*Teste si un token est une parenthèse gauche */
 bool tokenIsLeftParenthesis(Token *t) {
 	return tokenIsParenthesis(t) && (tokenGetParenthesisSymbol(t) == '(');
 } 
 
 /* ========================================================================================= */
 
-/* Test si un token est une parenthèse droite */
+/* Teste si un token est une parenthèse droite */
 bool tokenIsRightParenthesis(Token *t) {
 	return tokenIsParenthesis(t) && (tokenGetParenthesisSymbol(t) == ')');
 }
@@ -141,7 +141,7 @@ Queue* shuntingYard(Queue* infix) {
 				/* Si la pile n'est pas vide, le top contient une parenthèse gauche */
 				Token* toDelete = (Token*)stackTop(opStack); /* Récupération de la parenthèse gauche à supprimer */
 				opStack = stackPop(opStack);
-				/* Libération des tokens (parenthèses) qui ne seront plus utilisés */
+				/* Libération des tokens (parenthèses droites et gauches) qui ne seront plus utilisés */
 				deleteToken(&toDelete);
 				deleteToken(&token);
 			}
@@ -207,7 +207,7 @@ float evaluateExpression(Queue* postfix) {
 	}
 	/* Création d'un pointeur vers le resultat final (dernier élément de la pile) */
 	Token* lastToken = (Token*)stackTop(stack);
-	float evalValue = tokenGetValue(lastToken); /* Récupération de la valeur de ce token */
+	float evalValue = tokenGetValue(lastToken);
 	/* On libère ce dernier élément ainsi que la pile temporaire (maintenant vide) */
 	deleteToken(&lastToken);
 	deleteStack(&stack);
@@ -225,8 +225,8 @@ void computeExpressions(FILE* input) {
 	size_t bufsize = (size_t)BUFSIZE;
 	size_t expression; /* Chaîne de caractères lue à partir d'une ligne d'un fichier */
 	Queue* queueInfix; /* File de tokens en notation infixe */
-	Queue* queuePostfix; /* File de tokens en notation infixe */
-	float evaluationValue; /* valeur d'une expression arithmétique réprésentée par une chaîne de caractères */
+	Queue* queuePostfix; /* File de tokens en notation postfixe */
+	float evaluationValue; /* Valeur d'une expression arithmétique réprésentée par une chaîne de caractères */
 
 	buffer = (char *)malloc(bufsize * sizeof(char));
 	/* Traite le cas rare où le buffer ne peut pas accéder à l'espace mémoire demandé. */

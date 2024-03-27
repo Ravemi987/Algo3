@@ -120,6 +120,10 @@ Functions</h2></td></tr>
 <tr class="separator:a8285c38b4dc8ac67af43e563dae539d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed41c7ccaf1215266939820dcfa8e322"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aed41c7ccaf1215266939820dcfa8e322">freeTokenQueue</a> (<a class="el" href="queue_8h.html#a79cfeda5cd1c03a66846c50ed1a47b37">ptrQueue</a> *q)</td></tr>
 <tr class="separator:aed41c7ccaf1215266939820dcfa8e322"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95003fc3d1c67a5b66ea5de9170cacf3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a95003fc3d1c67a5b66ea5de9170cacf3">tokenIsLeftParenthesis</a> (<a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *t)</td></tr>
+<tr class="separator:a95003fc3d1c67a5b66ea5de9170cacf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc891ecd2a370265ed735e76273711f8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#adc891ecd2a370265ed735e76273711f8">tokenIsRightParenthesis</a> (<a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *t)</td></tr>
+<tr class="separator:adc891ecd2a370265ed735e76273711f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a99a272800d4179d5d4f77269857200"><td class="memItemLeft" align="right" valign="top"><a class="el" href="queue_8h.html#ad55071989550776aa85c9971eb04cc32">Queue</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a8a99a272800d4179d5d4f77269857200">shuntingYard</a> (<a class="el" href="queue_8h.html#ad55071989550776aa85c9971eb04cc32">Queue</a> *infix)</td></tr>
 <tr class="separator:a8a99a272800d4179d5d4f77269857200"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae87185ea781fd2cecf0d0b89c174b5b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ae87185ea781fd2cecf0d0b89c174b5b1">evaluateOperator</a> (<a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *arg1, <a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *op, <a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *arg2)</td></tr>
@@ -208,14 +212,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Test si un caractère est un chiffre. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">c</td><td>Le caractère à tester. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: true si le caractère peut être converti en chiffre false sinon. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Foncion équivalente à isdigit mais le choix est fait de ne pas modifier les inclusions. </dd></dl>
 
 </div>
 </div>
@@ -234,16 +230,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Transforme une chaîne de caractères en file de tokens en notation infixe. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">expression</td><td>: Chaîne de cractères quelconque à traiter. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: File dont tous les oprétateurs, parenthèses et nombres de la chaîne sont transformés en tokens. </dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="main_8c.html#a89896c5a7a2a7cec86c38dbf876fb3e4">isSymbol</a> </dd>
-<dd>
-<a class="el" href="main_8c.html#a4516b47eef857d317ec4711c2aedb87f">isNumValue</a> </dd></dl>
 
 </div>
 </div>
@@ -272,13 +258,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Affiche le token représenté par le pointeur non typé 'e' sur le flux de sortie 'f' </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">f</td><td>: Flux de sortie ouvert (ici stdout). </td></tr>
-    <tr><td class="paramname">e</td><td>: pointeur non typé représentant le token. </td></tr>
-  </table>
-  </dd>
-</dl>
 
 </div>
 </div>
@@ -297,14 +276,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Renvoie l'élément au top d'une pile après l'avoir supprimé de la pile. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>: Pile dont on doit pop l'élément en tête </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: token correspondant au top de la pile avant le pop. </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>: Cette fonction permet d'éviter la redondance de code. </dd></dl>
 
 </div>
 </div>
@@ -323,13 +294,42 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Libère les ressources (token) allouées à l'extérieur du gestionnaire de collection (la file). </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname"></td><td>Pointeur vers une file de tokens. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>: Cette fonction n'est utile que pour répondre à la question 3 de l'exercice 1. Dans la suite, les algorithmes des fonctions shuntingYard et evaluateExpression libèrent naturellement les ressources pas à pas. </dd></dl>
+
+</div>
+</div>
+<a id="a95003fc3d1c67a5b66ea5de9170cacf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95003fc3d1c67a5b66ea5de9170cacf3">&#9670;&nbsp;</a></span>tokenIsLeftParenthesis()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tokenIsLeftParenthesis </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="adc891ecd2a370265ed735e76273711f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc891ecd2a370265ed735e76273711f8">&#9670;&nbsp;</a></span>tokenIsRightParenthesis()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool tokenIsRightParenthesis </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="token_8h.html#a4c674424c0d76a66721becd229d4fd85">Token</a> *&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -348,13 +348,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Transforme une expression définie par une file de tokens en notation infixe, en une file repréesentant l’expression en notation postfixe. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">infix</td><td>: File de tokens en notation infixe. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: File de tokens en notation postfixe. </dd></dl>
+<p>Transforme une expression arithmétique représentée par une file de tokens en notation infixe, en une file de tokens représentant l’expression en notation postfixe. </p>
 
 </div>
 </div>
@@ -389,15 +383,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Evalue l'application d'un opérateur sur deux opérandes. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">arg1</td><td>: Token dont le type est un nombre et la valeur est la première opérande du calcul. </td></tr>
-    <tr><td class="paramname">arg2</td><td>: Token dont le type est un nombre et la valeur est la seconde opérande du calcul. </td></tr>
-    <tr><td class="paramname">op</td><td>: Token dont le type est un opérateur à appliquer aux deux opérandes. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: Nouveau token résultat de l'applcation de l'opérateur sur les deux nombres. </dd></dl>
 
 </div>
 </div>
@@ -416,13 +401,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Renvoie la valeur de l'évaluation d'une expression arithmétique représentée par une file de tokens en notation postfixe. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">postfix</td><td>: File de tokens en notation postfixe. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>: valeur de l'expression arithmétique </dd></dl>
+<p>Renvoie la valeur de l'évaluation d'une expression arithmétique représentée par une file de tokens en notation postfixe (algorithme d'évaluation en notation Polonaise inversée). </p>
 
 </div>
 </div>
@@ -441,25 +420,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Lit dans le fichier ouvert 'input' des chaînes de caractères correspondant à des expressions arithmétiques et affiche le résultat des appels aux différentes fonctions de traitement:</p><ul>
-<li>conversion de la chaîne en une file de tokens</li>
-<li>traitement de la file avec l'algorithme de Shunting Yard</li>
-<li>evaluation de l'expression arithmétique <dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">input</td><td>: Flux d'entrée ouvert dans le programme principal (fichier). </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="main_8c.html#ab97f7a24620f80d7e612706f629c40e9">stringToTokenQueue</a> </dd>
-<dd>
-<a class="el" href="main_8c.html#a8a99a272800d4179d5d4f77269857200">shuntingYard</a> </dd>
-<dd>
-<a class="el" href="main_8c.html#ac122dbb9c9e40f31104f2effeb8975ac">evaluateExpression</a> </dd>
-<dd>
-<a class="el" href="main_8c.html#a59c7cb581e7065680ec6106dfea1cdf7">printToken</a> </dd></dl>
-<dl class="section note"><dt>Note</dt><dd>Cette fonction gère la libération mémoire de toutes les fonctions utlisées. </dd></dl>
-</li>
-</ul>
+<p>Lit dans le flux d'entrée ouvert 'input' des chaînes de caractères correspondant à des expressions arithmétiques et affiche le résultat des appels aux différentes fonctions de traitement. </p>
 
 </div>
 </div>

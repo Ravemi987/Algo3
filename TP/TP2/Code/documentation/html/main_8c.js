@@ -9,6 +9,8 @@ var main_8c =
     [ "printToken", "main_8c.html#a59c7cb581e7065680ec6106dfea1cdf7", null ],
     [ "getTopAndPop", "main_8c.html#a8285c38b4dc8ac67af43e563dae539d7", null ],
     [ "freeTokenQueue", "main_8c.html#aed41c7ccaf1215266939820dcfa8e322", null ],
+    [ "tokenIsLeftParenthesis", "main_8c.html#a95003fc3d1c67a5b66ea5de9170cacf3", null ],
+    [ "tokenIsRightParenthesis", "main_8c.html#adc891ecd2a370265ed735e76273711f8", null ],
     [ "shuntingYard", "main_8c.html#a8a99a272800d4179d5d4f77269857200", null ],
     [ "evaluateOperator", "main_8c.html#ae87185ea781fd2cecf0d0b89c174b5b1", null ],
     [ "evaluateExpression", "main_8c.html#ac122dbb9c9e40f31104f2effeb8975ac", null ],
