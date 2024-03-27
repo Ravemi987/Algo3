@@ -214,7 +214,7 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 
 SubList list_split(SubList l) {
 	SubList temp = l;
-	/* Le pointeur slow va avancer deux fois plus lentement que le pointeur fast*/
+	/* Le pointeur fast va avancer deux fois plus vite que le pointeur slow */
 	LinkedElement *slowPointer = l.head;
 	LinkedElement *fastPointer = l.head->next;
 
@@ -226,8 +226,10 @@ SubList list_split(SubList l) {
 			fastPointer = fastPointer->next;
 		}
 	}
+	/* On mémorise dans notre sous-liste temp la cellule du milieu et celle qui suit */
 	temp.head = slowPointer;
 	temp.tail = slowPointer->next;
+	/* On casse le lien pour réellement diviser la sous-liste en deux */
 	slowPointer->next = NULL;
 	return temp;
 }
@@ -236,6 +238,7 @@ SubList list_split(SubList l) {
 
 SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 	SubList result;
+	/* Premier test permettant d'affecter à la tête de notre résultat la plus petite valeur */
 	if (f(leftlist.head->value, rightlist.head->value)) {
 		result.head = leftlist.head;
 		leftlist.head = leftlist.head->next;
@@ -244,21 +247,23 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 		rightlist.head = rightlist.head->next;
 	}
 
-	LinkedElement *new = result.head;
+	LinkedElement *new = result.head; /* Pointeur parcourant et construisant la sous-liste result */
 	new->previous = NULL;
 
 	while (leftlist.head != NULL || rightlist.head != NULL) {
+		/* On boucle tant que l'on a pas atteint la fin de l'une des sous-listes */
 		if (!rightlist.head || (leftlist.head && f(leftlist.head->value, rightlist.head->value))) {
+			/* la fin sous-liste droite est atteinte, ou bien la tête de la sous-liste gauche est prioritaire */
 			new->next = leftlist.head;
 			leftlist.head = leftlist.head->next;
 		} else {
+			/* la fin de la sous-liste gauche est atteinte, ou bien la tête de celle de droite est prioritaire */
 			new->next = rightlist.head;
 			rightlist.head = rightlist.head->next;
 		}
-		new->next->previous = new;
+		new->next->previous = new; /* On respecte la structure doublement chaînée de la sous-liste */
 		new = new->next;
 	}
-	
 	result.tail = new;
 	new->next = NULL;
 
@@ -269,13 +274,16 @@ SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 
 SubList list_mergesort(SubList l, OrderFunctor f) {
 	if (l.head == NULL || l.head->next == NULL) {
+		/* La sous-liste est vide ou ne contient qu'un seul élément, elle est donc déjà triée */
 		return l;
 	} else {
 		SubList leftlist, rightlist;
-		SubList splitList = list_split(l);
+		SubList splitList = list_split(l); /* Division de la sous-liste l en deux sous-listes */
+		/* Construction des nouvelles sous-listes */
 		leftlist = rightlist = l;
 		leftlist.tail = splitList.head;
 		rightlist.head = splitList.tail;
+		/* Appels récursif pour trier la sous-liste de départ  */
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
 	}
 }
@@ -284,11 +292,14 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 
 List* list_sort(List* l, OrderFunctor f) {
 	SubList sl, result;
+	/* "Conversion" d'une List en SubList sans sentinelle */
 	sl.head = l->sentinel->next;
 	sl.tail = l->sentinel->previous;
 	sl.tail->next = NULL;
 	sl.head->previous = NULL;
+	/* Tri de la sous-liste */
 	result = list_mergesort(sl, f);
+	/* "Re-conversion" vers une List avec remise en place de la sentinelle */
 	l->sentinel->next = result.head;
 	l->sentinel->previous = result.tail;
 	result.head->previous = l->sentinel;
