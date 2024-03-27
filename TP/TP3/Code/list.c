@@ -39,10 +39,8 @@ typedef struct s_SubList {
 List* list_create() {
 	List *l = malloc(sizeof(List));
 	if (l == NULL) return NULL;
-
 	l->sentinel = malloc(sizeof(LinkedElement));
 	if (l->sentinel == NULL) return NULL;
-
 	l->sentinel->next = l->sentinel->previous = l->sentinel;
 	l->size = 0;
 	return l;
@@ -215,7 +213,8 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 /*-----------------------------------------------------------------*/
 
 SubList list_split(SubList l) {
-	/* Le pointeur slow avance deux fois plus lentement que le pointeur fast*/
+	SubList temp;
+	/* Le pointeur slow va avancer deux fois plus lentement que le pointeur fast*/
 	LinkedElement *slowPointer = l.head;
 	LinkedElement *fastPointer = l.head->next;
 
@@ -227,11 +226,17 @@ SubList list_split(SubList l) {
 			fastPointer = fastPointer->next;
 		}
 	}
-
-	SubList temp = l;
 	temp.head = slowPointer;
 	temp.tail = slowPointer->next;
 	slowPointer->next = NULL;
+	for (LinkedElement *e = temp.head; e != NULL; e = e->next) {
+		printf("%d ", e->value);
+	}
+	printf("\n");
+	for (LinkedElement *e = temp.tail; e != NULL; e = e->next) {
+		printf("%d ", e->value);
+	}
+	printf("\n");
 	return temp;
 }
 
@@ -287,8 +292,8 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 		return l;
 	} else {
 		SubList leftlist, rightlist;
-		leftlist = rightlist = l;
 		SubList splitList = list_split(l);
+		leftlist = rightlist = l;
 		leftlist.tail = splitList.head;
 		rightlist.head = splitList.tail;
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
@@ -298,15 +303,14 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 /*-----------------------------------------------------------------*/
 
 List* list_sort(List* l, OrderFunctor f) {
-	SubList *sl = malloc(sizeof(SubList));
-	if (sl == NULL) return NULL;
-	sl->head = l->sentinel->next;
-	sl->tail = l->sentinel->previous;
-	SubList result = list_mergesort(*sl, f);
+	SubList sl, result;
+	sl.head = l->sentinel->next;
+	sl.tail = l->sentinel->previous;
+	result = list_mergesort(sl, f);
 	l->sentinel->next = result.head;
 	l->sentinel->previous = result.tail;
-	l->sentinel->next->previous = l->sentinel;
-	l->sentinel->previous->next = l->sentinel;
+	result.head->previous = l->sentinel;
+	result.tail->next = l->sentinel;
 	return l;
 }
 
