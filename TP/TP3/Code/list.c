@@ -31,7 +31,7 @@ struct s_List {
 typedef struct s_SubList {
 	LinkedElement* head;
 	LinkedElement* tail;
-} *SubList;
+} SubList;
 
 
 /*-----------------------------------------------------------------*/
@@ -216,8 +216,8 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 
 SubList list_split(SubList l) {
 	/* Le pointeur slow avance deux fois plus lentement que le pointeur fast*/
-	LinkedElement *slowPointer = l->head;
-	LinkedElement *fastPointer = l->head->next;
+	LinkedElement *slowPointer = l.head;
+	LinkedElement *fastPointer = l.head->next;
 
 	/* Lorsque fast a atteint la fin de la list, slow pointe le milieu */
 	while (fastPointer != NULL) {
@@ -228,57 +228,69 @@ SubList list_split(SubList l) {
 		}
 	}
 
-	SubList newList = l;
-	newList->head = l->head;
-	/* La queue de la liste pointe vers la sous-liste droite*/
-	newList->tail = slowPointer->next;
-	/* Les sous-listes de gauche et de droite sont de nouvelles listes
-	 * donc slow pointe la queue de la sous-liste gauche */
+	SubList temp = l;
+	temp.head = slowPointer;
+	temp.tail = slowPointer->next;
 	slowPointer->next = NULL;
-	return newList;
+	return temp;
 }
 
 /*-----------------------------------------------------------------*/
 
 SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
-	if (leftlist == NULL) {
-		return rightlist;
-	} else if (rightlist == NULL) {
-		return leftlist;
+	SubList result;
+	if (f(leftlist.head->value, rightlist.head->value)) {
+		result.head = leftlist.head;
+		leftlist.head = leftlist.head->next;
 	} else {
-		SubList tmp;
-		if (f(leftlist->head->value, rightlist->head->value)) {
-			/* tmp est la sous-liste dont la tête de la sous-liste gauche est décalée*/
-			tmp = leftlist;
-			tmp->head = leftlist->head->next;
-			leftlist = list_merge(tmp, rightlist, f);
-			/* On raccorde la nouvelle tête avec le reste de la liste qui sera triée */
-			leftlist->head->next->previous = leftlist->head;
-			leftlist->head->previous = NULL;
-			return leftlist;
+		result.head = rightlist.head;
+		rightlist.head = rightlist.head->next;
+	}
+
+	LinkedElement *new = result.head;
+
+	while (leftlist.head->next && rightlist.head->next) {
+		if (f(leftlist.head->value, rightlist.head->value)) {
+			new->next = leftlist.head;
+			new = new->next;
+			leftlist.head = leftlist.head->next;
 		} else {
-			/* On fait la même chose que pour la sous-liste gauche */
-			tmp = rightlist;
-			tmp->head = rightlist->head->next;
-			rightlist = list_merge(leftlist, tmp, f);
-			rightlist->head->next->previous = leftlist->head;
-			rightlist->head->previous = NULL;
-			return rightlist;
+			new->next = rightlist.head;
+			new = new->next;
+			rightlist.head = rightlist.head->next;
 		}
 	}
+	if (rightlist.head->next) {
+		while (rightlist.head->next) {
+			new->next = rightlist.head;
+			new = new->next;
+			rightlist.head = rightlist.head->next;
+		}
+		result.tail = rightlist.head;
+	} else if (leftlist.head->next) {
+		while (leftlist.head->next) {
+			new->next = leftlist.head;
+			new = new->next;
+			leftlist.head = leftlist.head->next;
+		}
+		result.tail = leftlist.head;
+	} else {
+		result.tail = new;
+	}
+	return result;
 }
 
 /*-----------------------------------------------------------------*/
 
 SubList list_mergesort(SubList l, OrderFunctor f) {
-	if (l->head == NULL || l->head->next == NULL) {
+	if (l.head == NULL || l.head->next == NULL) {
 		return l;
 	} else {
+		SubList leftlist, rightlist;
+		leftlist = rightlist = l;
 		SubList splitList = list_split(l);
-		SubList leftlist = l;
-		leftlist->tail = splitList->tail->previous;
-		SubList rightlist = l;
-		rightlist->head = l->tail;
+		leftlist.tail = splitList.head;
+		rightlist.head = splitList.tail;
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
 	}
 }
@@ -286,9 +298,13 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 /*-----------------------------------------------------------------*/
 
 List* list_sort(List* l, OrderFunctor f) {
-	SubList sl = list_mergesort((SubList)l, f);
-	l->sentinel->next = sl->head;
-	l->sentinel->previous = sl->tail;
+	SubList *sl = malloc(sizeof(SubList));
+	if (sl == NULL) return NULL;
+	sl->head = l->sentinel->next;
+	sl->tail = l->sentinel->previous;
+	SubList result = list_mergesort(*sl, f);
+	l->sentinel->next = result.head;
+	l->sentinel->previous = result.tail;
 	l->sentinel->next->previous = l->sentinel;
 	l->sentinel->previous->next = l->sentinel;
 	return l;
