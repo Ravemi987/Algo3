@@ -229,7 +229,8 @@ SubList list_split(SubList l) {
 	/* On mémorise dans notre sous-liste temp la cellule du milieu et celle qui suit */
 	temp.head = slowPointer;
 	temp.tail = slowPointer->next;
-	/* On casse le lien pour réellement diviser la sous-liste en deux */
+	/* On casse les liens pour réellement diviser la sous-liste en deux */
+	slowPointer->next->previous = NULL;
 	slowPointer->next = NULL;
 	return temp;
 }
