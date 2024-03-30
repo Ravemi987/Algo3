@@ -7,25 +7,3 @@ List pour déclarer des variables et appliquer dessus la fonction sort.
 
 Les trois fonctions list_split, list_merge et list_mergesort doivent donc être déclarée également
 dans le fichier list.c
-
-
-SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
-	SubList temp;
-	if (f(leftlist.head->value, rightlist.head->value)) {
-		temp = leftlist;
-		temp.head = leftlist.head->next;
-		temp = list_merge(temp, rightlist, f);
-		leftlist.head->next = temp.head;
-		leftlist.head->next->previous = leftlist.head;
-		leftlist.head->previous = NULL;
-		return leftlist;
-	} else {
-		temp = rightlist;
-		temp.head = rightlist.head->next;
-		temp = list_merge(leftlist, temp, f);
-		rightlist.head->next = temp.head;
-		rightlist.head->next->previous = rightlist.head;
-		rightlist.head->previous = NULL;
-		return rightlist;
-	}
-}

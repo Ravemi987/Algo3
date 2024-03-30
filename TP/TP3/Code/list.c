@@ -27,7 +27,9 @@ struct s_List {
 	int size;
 };
 
-/* define the SubList structure. Its implementation is a list without sentinel */
+/* Définition de la structure SubList représentant de manière minimale une liste doublement chaînée sans sentinelle. 
+ * Aucun élément ne précède la tête de la liste, de même qu'aucun élément ne suit la queue de la liste.
+ */
 typedef struct s_SubList {
 	LinkedElement* head;
 	LinkedElement* tail;
@@ -36,11 +38,12 @@ typedef struct s_SubList {
 
 /*-----------------------------------------------------------------*/
 
+/* Déclaration, allocation et initialisation d'une liste doublement chaînée */
 List* list_create() {
 	List *l = malloc(sizeof(List));
-	if (l == NULL) return NULL;
+	if (l == NULL) return NULL; /* Echec de l'allocation de la liste */
 	l->sentinel = malloc(sizeof(LinkedElement));
-	if (l->sentinel == NULL) return NULL;
+	if (l->sentinel == NULL) return NULL; /* Echec de l'allocation de la sentinelle */
 	l->sentinel->next = l->sentinel->previous = l->sentinel;
 	l->size = 0;
 	return l;
@@ -48,100 +51,110 @@ List* list_create() {
 
 /*-----------------------------------------------------------------*/
 
+/* Ajout de l'élément v en fin de liste */
 List* list_push_back(List* l, int v) {
 	LinkedElement *new = malloc(sizeof(LinkedElement));
-	new->previous = l->sentinel->previous;
-	new->next = l->sentinel;
+	new->previous = l->sentinel->previous; /* L'élément précédant est la queue de la liste */
+	new->next = l->sentinel; /* L'élément suivant est la sentinelle */
 	new->value = v;
-	new->previous->next = new;
-	l->sentinel->previous = new;
+	new->previous->next = new; /* L'élément suivant la queue de la liste est celui ajouté */
+	l->sentinel->previous = new; /* L'élément ajouté est la nouvelle queue de la liste*/
 	++(l->size);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Libère l'ensemble des ressources allouées pour le stockage de la liste l que l'on met ensuite à NULL */
 void list_delete(ptrList *l) {
 	if (*l != NULL) {
-		LinkedElement *toRemove;
-		LinkedElement *current = (*l)->sentinel->next;
+		LinkedElement *toRemove; /* Pointeur vers l'élément à supprimer et libérer */
+		LinkedElement *current = (*l)->sentinel->next; /* Pointeur pour parcourir la liste */
 
 		while (current != (*l)->sentinel) {
-			toRemove = current;
+			toRemove = current; /* Mémorisation de l'élément à supprimer */
 			current = current->next;
-			free(toRemove);
+			free(toRemove); /* Libération de l'élément à supprimer */
 		}
 
-		free((*l)->sentinel);
-		free(*l);
-		*l = NULL;
+		free((*l)->sentinel); /* Libération de la sentinelle */
+		free(*l); /* Libération de la liste */
+		*l = NULL; /* On affecte NULl à la liste l */
 	}  
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Ajout de l'élément v en tête de liste */
 List* list_push_front(List* l, int v) {
 	LinkedElement *new = malloc(sizeof(LinkedElement));
-	new->previous = l->sentinel;
-	new->next = l->sentinel->next;
+	new->previous = l->sentinel; /* L'élément précédant est la sentinelle */
+	new->next = l->sentinel->next; /* L'élément suivant est la tête de liste */
 	new->value = v;
-	new->next->previous = new;
-	l->sentinel->next = new;
+	new->next->previous = new; /* l'élément précédant la tête est celui ajouté */
+	l->sentinel->next = new; /* L'élément ajouté est la nouvelle tête de liste */
 	++(l->size);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Renvoi la valeur de l'élément se trouvant en tête de liste */
 int list_front(const List* l) {
-	assert(!list_is_empty(l));
+	assert(!list_is_empty(l)); /* Pré-condition */
 	return l->sentinel->next->value;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Renvoi la valeur de lélément se trouvant en fin de liste */
 int list_back(const List* l) {
-	assert(!list_is_empty(l));
+	assert(!list_is_empty(l)); /* Pré-condition */
 	return l->sentinel->previous->value;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Supprime l'élément se trouvant en tête de la liste l */
 List* list_pop_front(List* l) {
-	assert(!list_is_empty(l));
-	LinkedElement *toRemove = l->sentinel->next;
-	toRemove->next->previous = l->sentinel;
-	l->sentinel->next = toRemove->next;
-	free(toRemove);
+	assert(!list_is_empty(l)); /* Pré-condition */
+	LinkedElement *toRemove = l->sentinel->next; /* Mémorisation de la tête de liste */
+	toRemove->next->previous = l->sentinel; /* L'élément suivant la tête pointe vers la sentinelle */
+	l->sentinel->next = toRemove->next; /* La sentinelle pointe vers la nouvelle tête */
+	free(toRemove); /* Libération de l'ancienne tête */
 	--(l->size);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Supprime l'élément se trouvant en fin de la liste l */
 List* list_pop_back(List* l){
-	assert(!list_is_empty(l));
-	LinkedElement *toRemove = l->sentinel->previous;
-	toRemove->previous->next = l->sentinel;
-	l->sentinel->previous = toRemove->previous;
-	free(toRemove);
+	assert(!list_is_empty(l)); /* Pré-condition */
+	LinkedElement *toRemove = l->sentinel->previous; /* Mémorisation de la queue de la liste */
+	toRemove->previous->next = l->sentinel; /* l'élément précédant la queue pointe vers la sentinelle */
+	l->sentinel->previous = toRemove->previous; /* La sentinelle pointe vers la nouvelle queue */
+	free(toRemove); /* Libération de l'ancienne queue */
 	--(l->size);
 	return l;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Insère l'élément v à l'indice p dans la liste l */
 List* list_insert_at(List* l, int p, int v) {
-	assert(0 <= p && p <= l->size);
+	assert(0 <= p && p <= l->size); /* Pré-condition */
 	if (p == 0) {
-		return list_push_front(l, v);
+		return list_push_front(l, v); /* Ajout en tête de liste */
 	} else if (p == l->size) {
-		return list_push_back(l, v);
+		return list_push_back(l, v); /* Ajout en fin de liste */
 	} else {
-		LinkedElement *current = l->sentinel->next;
+		/* Cas général: ajout ni en tête, ni en fin */
+		LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
 		LinkedElement *new = malloc(sizeof(LinkedElement));
-		while (p--) current = current->next;
-		new->previous = current->previous;
+		while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
+		/* Insertion du nouvel élément entre l'élément précedant current, et celui pointé par current */
+		new->previous = current->previous; 
 		new->next = current;
 		new->value = v;
 		current->previous->next = new;
@@ -153,48 +166,56 @@ List* list_insert_at(List* l, int p, int v) {
 
 /*-----------------------------------------------------------------*/
 
+/* Supprime l'élément se trouvant à l'indice p dans la liste l */
 List* list_remove_at(List* l, int p) {
-	assert(!list_is_empty(l) && 0 <= p && p <= l->size);
+	assert(!list_is_empty(l) && 0 <= p && p <= l->size); /* Pré-condition */
 	if (p == 0) {
-		return list_pop_front(l);
+		return list_pop_front(l); /* Suppression en tête de liste */
 	} else if (p == l->size) {
-		return list_pop_back(l);
+		return list_pop_back(l); /* Suppression en fin de liste */
 	} else {
+		/* Cas général: suppression ni en tête, ni en fin */
 		LinkedElement *toRemove;
-		LinkedElement *current = l->sentinel->next;
-		while (p--) current = current->next;
-		toRemove = current;
-		current->previous->next = current->next;
-		current->next->previous = current->previous;
+		LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
+		while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
+		toRemove = current; /* Mémorisation de l'élément à supprimer */
+		current->previous->next = current->next; /* L'élement précédant current pointe vers le suivant */
+		current->next->previous = current->previous; /* L'élément suivant current pointe vers le précédant */
 		--(l->size);
-		free(toRemove);
+		free(toRemove); /* Libération de l'élément current*/
 		return l;
 	}
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Renvoi la valeur de l'élément se trouvant à l'indice p dans la liste l */
 int list_at(const List* l, int p) {
-	assert(!list_is_empty(l) && 0 <= p && p <= l->size);
-	LinkedElement *current = l->sentinel->next;
-	while (p--) current = current->next;
+	assert(!list_is_empty(l) && 0 <= p && p <= l->size); /* Pré-condition */
+	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
+	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
 	return current->value;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Test si la liste l est vide */
 bool list_is_empty(const List* l) {
 	return l->size == 0;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Renvoi le nombre d'éléments que contient la liste l */
 int list_size(const List* l) {
 	return l->size;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Remplace la valeur de chaque élément de la liste l
+ * par la valeur de retour de la fonction f appliquée à cet élément 
+ */
 List* list_map(List* l, SimpleFunctor f) {
 	for (LinkedElement *e = l->sentinel->next; e != l->sentinel; e = e->next) {
 		e->value = f(e->value);
@@ -202,7 +223,7 @@ List* list_map(List* l, SimpleFunctor f) {
 	return l;
 }
 
-
+/* Exécute la fonction f, munie de l'environnement utilisateur userData, sur chaque élément de la liste l */
 List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 	for (LinkedElement *e = l->sentinel->next; e != l->sentinel; e = e->next) {
 		f(e->value, userData);
@@ -212,8 +233,9 @@ List* list_reduce(List* l, ReduceFunctor f, void *userData) {
 
 /*-----------------------------------------------------------------*/
 
+/* Découpe une sous-liste l en deux nouvelles sous-listes de tailles égale à 1 élément près */
 SubList list_split(SubList l) {
-	SubList temp = l;
+	SubList result = l;
 	/* Le pointeur fast va avancer deux fois plus vite que le pointeur slow */
 	LinkedElement *slowPointer = l.head;
 	LinkedElement *fastPointer = l.head->next;
@@ -226,64 +248,65 @@ SubList list_split(SubList l) {
 			fastPointer = fastPointer->next;
 		}
 	}
-	/* On mémorise dans notre sous-liste temp la cellule du milieu et celle qui suit */
-	temp.head = slowPointer;
-	temp.tail = slowPointer->next;
-	/* On casse les liens pour réellement diviser la sous-liste en deux */
+	/* On mémorise dans notre sous-liste result la cellule du milieu et celle qui suit */
+	result.head = slowPointer;
+	result.tail = slowPointer->next;
+	/* On "casse" les liens du milieu pour réellement diviser la sous-liste en deux */
 	slowPointer->next->previous = NULL;
 	slowPointer->next = NULL;
-	return temp;
+	return result;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Fusionne deux sous-listes triées leftlist et rightlist en respectant l'ordre défini par la fonction f */
 SubList list_merge(SubList leftlist, SubList rightlist, OrderFunctor f) {
 	SubList result;
-	/* Premier test permettant d'affecter à la tête de notre résultat la plus petite valeur */
+	/* Premier test permettant de contruire notre sous-liste result avec la plus petite valeur en tête */
 	if (f(leftlist.head->value, rightlist.head->value)) {
-		result.head = leftlist.head;
-		leftlist.head = leftlist.head->next;
+		result.head = leftlist.head; /* L'élément suivant de notre sous-liste result est la tête de la sous-liste gauche */
+		leftlist.head = leftlist.head->next; /* Décalage de la tête de la sous-liste gauche */
 	} else {
 		result.head = rightlist.head;
 		rightlist.head = rightlist.head->next;
 	}
 
-	LinkedElement *new = result.head; /* Pointeur parcourant et construisant la sous-liste result */
-	new->previous = NULL;
+	LinkedElement *tmp = result.head; /* Pointeur permettant de construire la sous-liste result à partir de sa tête */
+	tmp->previous = NULL;
 
 	while (leftlist.head != NULL || rightlist.head != NULL) {
-		/* On boucle tant que l'on a pas atteint la fin de l'une des sous-listes */
+		/* On boucle tant que l'on a pas atteint la fin de l'une des deux sous-listes gauche ou droite */
 		if (!rightlist.head || (leftlist.head && f(leftlist.head->value, rightlist.head->value))) {
-			/* la fin sous-liste droite est atteinte, ou bien la tête de la sous-liste gauche est prioritaire */
-			new->next = leftlist.head;
+			/* la fin de la sous-liste droite est atteinte, ou bien la tête de la sous-liste gauche est prioritaire */
+			tmp->next = leftlist.head; 
 			leftlist.head = leftlist.head->next;
 		} else {
 			/* la fin de la sous-liste gauche est atteinte, ou bien la tête de celle de droite est prioritaire */
-			new->next = rightlist.head;
+			tmp->next = rightlist.head;
 			rightlist.head = rightlist.head->next;
 		}
-		new->next->previous = new; /* On respecte la structure doublement chaînée de la sous-liste */
-		new = new->next;
+		tmp->next->previous = tmp; /* On respecte la structure doublement chaînée de la sous-liste */
+		tmp = tmp->next;
 	}
-	result.tail = new;
-	new->next = NULL;
+	result.tail = tmp; /* Le dernier élément ajouté est la queue de la sous-liste */
+	tmp->next = NULL;
 
 	return result;
 }
 
 /*-----------------------------------------------------------------*/
 
+/* Trie de façon récursive la sous-liste l selon la relation d'ordre définie par la fonction f */
 SubList list_mergesort(SubList l, OrderFunctor f) {
 	if (l.head == NULL || l.head->next == NULL) {
 		/* La sous-liste est vide ou ne contient qu'un seul élément, elle est donc déjà triée */
 		return l;
 	} else {
 		SubList leftlist, rightlist;
-		SubList splitList = list_split(l); /* Division de la sous-liste l en deux sous-listes */
-		/* Construction des nouvelles sous-listes */
-		leftlist = rightlist = l;
-		leftlist.tail = splitList.head;
-		rightlist.head = splitList.tail;
+		SubList splitList = list_split(l); /* Découpage de la sous-liste l en deux nouvelles sous-listes */
+		leftlist = rightlist = l; /* Construction des nouvelles sous-listes à partir de la sous-liste l*/
+		leftlist.tail = splitList.head; /* La sous-liste de gauche s'arrête au milieu de l */
+		rightlist.head = splitList.tail; /* La sous-liste de droite commence juste après le milieu de l */
 		/* Appels récursif pour trier la sous-liste de départ  */
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
 	}
@@ -291,6 +314,7 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 
 /*-----------------------------------------------------------------*/
 
+/* Trie une liste doublement chaînée avec sentinelle selon l'ordre défini par la fonction f */
 List* list_sort(List* l, OrderFunctor f) {
 	SubList sl, result;
 	/* "Conversion" d'une List en SubList sans sentinelle */
@@ -298,9 +322,9 @@ List* list_sort(List* l, OrderFunctor f) {
 	sl.tail = l->sentinel->previous;
 	sl.tail->next = NULL;
 	sl.head->previous = NULL;
-	/* Tri de la sous-liste */
+	/* Tri de la sous-liste obtenue et récupération du résultat*/
 	result = list_mergesort(sl, f);
-	/* "Re-conversion" vers une List avec remise en place de la sentinelle */
+	/* "Re-conversion" vers le type List avec remise en place de la sentinelle */
 	l->sentinel->next = result.head;
 	l->sentinel->previous = result.tail;
 	result.head->previous = l->sentinel;
