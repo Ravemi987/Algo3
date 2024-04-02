@@ -144,24 +144,17 @@ List* list_pop_back(List* l){
 /* Insère l'élément v à l'indice p dans la liste l */
 List* list_insert_at(List* l, int p, int v) {
 	assert(0 <= p && p <= l->size); /* Pré-condition */
-	if (p == 0) {
-		return list_push_front(l, v); /* Ajout en tête de liste */
-	} else if (p == l->size) {
-		return list_push_back(l, v); /* Ajout en fin de liste */
-	} else {
-		/* Cas général: ajout ni en tête, ni en fin */
-		LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
-		LinkedElement *new = malloc(sizeof(LinkedElement));
-		while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
-		/* Insertion du nouvel élément entre l'élément précedant current, et celui pointé par current */
-		new->previous = current->previous; 
-		new->next = current;
-		new->value = v;
-		current->previous->next = new;
-		current->previous = new;
-		++(l->size);
-		return l;
-	}
+	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
+	LinkedElement *new = malloc(sizeof(LinkedElement));
+	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
+	/* Insertion du nouvel élément entre l'élément précédant current, et celui pointé par current */
+	new->value = v;
+	new->next = current;
+	new->previous = current->previous; 
+	current->previous->next = new;
+	current->previous = new;
+	++(l->size);
+	return l;
 }
 
 /*-----------------------------------------------------------------*/
@@ -169,22 +162,15 @@ List* list_insert_at(List* l, int p, int v) {
 /* Supprime l'élément se trouvant à l'indice p dans la liste l */
 List* list_remove_at(List* l, int p) {
 	assert(!list_is_empty(l) && 0 <= p && p <= l->size); /* Pré-condition */
-	if (p == 0) {
-		return list_pop_front(l); /* Suppression en tête de liste */
-	} else if (p == l->size) {
-		return list_pop_back(l); /* Suppression en fin de liste */
-	} else {
-		/* Cas général: suppression ni en tête, ni en fin */
-		LinkedElement *toRemove;
-		LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
-		while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
-		toRemove = current; /* Mémorisation de l'élément à supprimer */
-		current->previous->next = current->next; /* L'élement précédant current pointe vers le suivant */
-		current->next->previous = current->previous; /* L'élément suivant current pointe vers le précédant */
-		--(l->size);
-		free(toRemove); /* Libération de l'élément current*/
-		return l;
-	}
+	LinkedElement *toRemove;
+	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
+	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
+	toRemove = current; /* Mémorisation de l'élément à supprimer */
+	current->previous->next = current->next; /* L'élement précédant current pointe vers le suivant */
+	current->next->previous = current->previous; /* L'élément suivant current pointe vers le précédant */
+	--(l->size);
+	free(toRemove); /* Libération de l'élément current*/
+	return l;
 }
 
 /*-----------------------------------------------------------------*/
