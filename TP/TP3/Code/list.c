@@ -148,9 +148,9 @@ List* list_insert_at(List* l, int p, int v) {
 	LinkedElement *new = malloc(sizeof(LinkedElement));
 	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
 	/* Insertion du nouvel élément entre l'élément précédant current, et celui pointé par current */
-	new->value = v;
 	new->next = current;
 	new->previous = current->previous; 
+	new->value = v;
 	current->previous->next = new;
 	current->previous = new;
 	++(l->size);
@@ -304,17 +304,17 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 List* list_sort(List* l, OrderFunctor f) {
 	SubList sl, result;
 	/* "Conversion" d'une List en SubList sans sentinelle */
-	sl.head = l->sentinel->next;
-	sl.tail = l->sentinel->previous;
+	sl.head = l->sentinel->next; /* Même tête que la liste l */
+	sl.tail = l->sentinel->previous; /* Même queue que la liste l */
 	sl.tail->next = NULL;
 	sl.head->previous = NULL;
 	/* Tri de la sous-liste obtenue et récupération du résultat*/
 	result = list_mergesort(sl, f);
 	/* "Re-conversion" vers le type List avec remise en place de la sentinelle */
-	l->sentinel->next = result.head;
-	l->sentinel->previous = result.tail;
-	result.head->previous = l->sentinel;
-	result.tail->next = l->sentinel;
+	l->sentinel->next = result.head; /* L'élément suivant la sentinelle est la tête de la liste */
+	l->sentinel->previous = result.tail; /* L'élément précédant la sentinelle est la queue de la liste */
+	result.head->previous = l->sentinel; /* L'élément précdant la tête est la sentinelle */
+	result.tail->next = l->sentinel; /* L'élément suivant la queue est la sentinelle */
 	return l;
 }
 
