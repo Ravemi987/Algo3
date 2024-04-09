@@ -99,7 +99,7 @@ List* list_push_front(List* l, int v) {
 
 /*-----------------------------------------------------------------*/
 
-/* Renvoi la valeur de l'élément se trouvant en tête de liste */
+/* Renvoie la valeur de l'élément se trouvant en tête de liste */
 int list_front(const List* l) {
 	assert(!list_is_empty(l)); /* Pré-condition */
 	return l->sentinel->next->value;
@@ -107,7 +107,7 @@ int list_front(const List* l) {
 
 /*-----------------------------------------------------------------*/
 
-/* Renvoi la valeur de lélément se trouvant en fin de liste */
+/* Renvoie la valeur de lélément se trouvant en fin de liste */
 int list_back(const List* l) {
 	assert(!list_is_empty(l)); /* Pré-condition */
 	return l->sentinel->previous->value;
@@ -166,7 +166,7 @@ List* list_remove_at(List* l, int p) {
 	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
 	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
 	toRemove = current; /* Mémorisation de l'élément à supprimer */
-	current->previous->next = current->next; /* L'élement précédant current pointe vers le suivant */
+	current->previous->next = current->next; /* L'élément précédant current pointe vers le suivant */
 	current->next->previous = current->previous; /* L'élément suivant current pointe vers le précédant */
 	--(l->size);
 	free(toRemove); /* Libération de l'élément current*/
@@ -175,7 +175,7 @@ List* list_remove_at(List* l, int p) {
 
 /*-----------------------------------------------------------------*/
 
-/* Renvoi la valeur de l'élément se trouvant à l'indice p dans la liste l */
+/* Renvoie la valeur de l'élément se trouvant à l'indice p dans la liste l */
 int list_at(const List* l, int p) {
 	assert(!list_is_empty(l) && 0 <= p && p <= l->size); /* Pré-condition */
 	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
@@ -192,7 +192,7 @@ bool list_is_empty(const List* l) {
 
 /*-----------------------------------------------------------------*/
 
-/* Renvoi le nombre d'éléments que contient la liste l */
+/* RenvoiE le nombre d'éléments que contient la liste l */
 int list_size(const List* l) {
 	return l->size;
 }
@@ -290,10 +290,10 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 	} else {
 		SubList leftlist, rightlist;
 		SubList splitList = list_split(l); /* Découpage de la sous-liste l en deux nouvelles sous-listes */
-		leftlist = rightlist = l; /* Construction des nouvelles sous-listes à partir de la sous-liste l*/
+		leftlist = rightlist = l; /* Construction des nouvelles sous-listes à partir de la sous-liste l */
 		leftlist.tail = splitList.head; /* La sous-liste de gauche s'arrête au milieu de l */
 		rightlist.head = splitList.tail; /* La sous-liste de droite commence juste après le milieu de l */
-		/* Appels récursif pour trier la sous-liste de départ  */
+		/* Appels récursifs pour trier la sous-liste de départ */
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
 	}
 }
@@ -308,12 +308,12 @@ List* list_sort(List* l, OrderFunctor f) {
 	sl.tail = l->sentinel->previous; /* Même queue que la liste l */
 	sl.tail->next = NULL;
 	sl.head->previous = NULL;
-	/* Tri de la sous-liste obtenue et récupération du résultat*/
+	/* Trie de la sous-liste obtenue et récupération du résultat */
 	result = list_mergesort(sl, f);
 	/* "Re-conversion" vers le type List avec remise en place de la sentinelle */
 	l->sentinel->next = result.head; /* L'élément suivant la sentinelle est la tête de la liste */
 	l->sentinel->previous = result.tail; /* L'élément précédant la sentinelle est la queue de la liste */
-	result.head->previous = l->sentinel; /* L'élément précdant la tête est la sentinelle */
+	result.head->previous = l->sentinel; /* L'élément précédant la tête est la sentinelle */
 	result.tail->next = l->sentinel; /* L'élément suivant la queue est la sentinelle */
 	return l;
 }
