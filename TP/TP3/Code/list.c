@@ -166,10 +166,11 @@ List* list_remove_at(List* l, int p) {
 	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
 	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
 	toRemove = current; /* Mémorisation de l'élément à supprimer */
-	current->previous->next = current->next; /* L'élément précédant current pointe vers le suivant */
-	current->next->previous = current->previous; /* L'élément suivant current pointe vers le précédant */
+	/* Redirection des liens pointants vers l'élément à supprimer */
+	current->previous->next = current->next;
+	current->next->previous = current->previous;
 	--(l->size);
-	free(toRemove); /* Libération de l'élément current*/
+	free(toRemove); /* Libération de l'élément */
 	return l;
 }
 
@@ -290,9 +291,10 @@ SubList list_mergesort(SubList l, OrderFunctor f) {
 	} else {
 		SubList leftlist, rightlist;
 		SubList splitList = list_split(l); /* Découpage de la sous-liste l en deux nouvelles sous-listes */
-		leftlist = rightlist = l; /* Construction des nouvelles sous-listes à partir de la sous-liste l */
+		leftlist.head = l.head; /* La sous-liste de gauche commence au début de l */
 		leftlist.tail = splitList.head; /* La sous-liste de gauche s'arrête au milieu de l */
 		rightlist.head = splitList.tail; /* La sous-liste de droite commence juste après le milieu de l */
+		rightlist.tail = l.tail; /* La sous-liste de droite s'arrête à la fin de l */
 		/* Appels récursifs pour trier la sous-liste de départ */
 		return list_merge(list_mergesort(leftlist, f), list_mergesort(rightlist, f), f);
 	}
