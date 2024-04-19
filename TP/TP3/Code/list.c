@@ -166,7 +166,7 @@ List* list_remove_at(List* l, int p) {
 	LinkedElement *current = l->sentinel->next; /* Pointeur pour parcourir la liste */
 	while (p--) current = current->next; /* Décalage jusqu'à la position souhaitée */
 	toRemove = current; /* Mémorisation de l'élément à supprimer */
-	/* Redirection des liens pointants vers l'élément à supprimer */
+	/* Redirection des liens pointant vers l'élément à supprimer */
 	current->previous->next = current->next;
 	current->next->previous = current->previous;
 	--(l->size);

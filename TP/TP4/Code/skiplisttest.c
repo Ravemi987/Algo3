@@ -68,12 +68,21 @@ SkipList buildlist(int num) {
 	input = fopen(constructfromfile, "r");
 	if (input!=NULL) {
 		
-		fscanf(input, "%u", &level);
+		if (fscanf(input, "%u", &level) == -1) {
+			perror("Bad file descriptor");
+			exit(EXIT_FAILURE);
+		}
 		d = skiplist_create(level);
 		
-		fscanf(input, "%u", &nb_values);
+		if (fscanf(input, "%u", &nb_values) == -1) {
+			perror("Bad file descriptor");
+			exit(EXIT_FAILURE);
+		}
 		for (unsigned int i=0;i< nb_values; ++i) {
-			fscanf(input, "%d", &value);
+			if (fscanf(input, "%d", &value) == -1) {
+				perror("Bad file descriptor");
+				exit(EXIT_FAILURE);
+			}
 			d = skiplist_insert(d, value);
 		}
 	} else {
@@ -86,20 +95,80 @@ SkipList buildlist(int num) {
 	return d;
 }
 
+void print_value(int v, void* env) {
+	if (!env) printf("%d ", v);
+}
+
 /*----------------------------------------------------------------------------------------------*/
 
 /** Exercice 1.
  	Programming and test of skiplist construction.
  */
 void test_construction(int num){
-	(void) num;
+	SkipList d = buildlist(num);
+	printf("Skiplist (%d)\n", skiplist_size(d));
+	skiplist_map(d, print_value, NULL);
+	printf("\n");
+	skiplist_delete(d);
 }
 
 /** Exercice 2.
  Programming and test of skiplist search operator.
  */
 void test_search(int num){
-	(void) num;
+	SkipList d = buildlist(num);
+	FILE *input;
+	unsigned int nb_values;
+	unsigned int nb_operations_local = 0, nb_operations_total = 0;
+	unsigned int nb_operations_min = 100000, nb_operations_max = 0;;
+	unsigned int values_found = 0, values_not_found = 0;
+	int value;
+	
+	char *constructfromfile = gettestfilename("search", num);
+	input = fopen(constructfromfile, "r");
+	if (input!=NULL) {
+		
+		if (fscanf(input, "%u", &nb_values) == -1) {
+			perror("Bad file descriptor");
+			exit(EXIT_FAILURE);
+		}
+		for (unsigned int i=0;i< nb_values; ++i) {
+			if (fscanf(input, "%d", &value) == -1) {
+				perror("Bad file descriptor");
+				exit(EXIT_FAILURE);
+			}
+			
+			if (skiplist_search(d, value, &nb_operations_local)) {
+				values_found++;
+				printf("%d -> true\n", value);
+			} else {
+				values_not_found++;
+				printf("%d -> false\n", value);
+			}
+
+			nb_operations_total += nb_operations_local;
+
+			if (nb_operations_local > nb_operations_max) {
+				nb_operations_max = nb_operations_local;
+			}
+			if (nb_operations_local < nb_operations_min) {
+				nb_operations_min = nb_operations_local;
+			}
+		}
+	} else {
+		printf("Unable to open file %s\n", constructfromfile);
+		free(constructfromfile);
+		exit (1);
+	}
+	free(constructfromfile);
+	fclose(input);
+
+	printf("Statistics :\n\tSize of the list : %d\nSearch %d values :\n", skiplist_size(d), nb_values);
+	printf("\tFound %d\n", values_found);
+	printf("\tNot found %d\n", values_not_found);
+	printf("\tMin number of operations : %u\n", nb_operations_min);
+	printf("\tMax number of operations : %u\n", nb_operations_max);
+	printf("\tMean number of operations : %u\n", nb_operations_total / nb_values);
 }
 
 /** Exercice 3.
