@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "skiplist.h"
+
 
 /**
  *	@defgroup SkipListTest Test program for SkipList Implantation
@@ -120,7 +122,7 @@ void test_search(int num){
 	FILE *input;
 	unsigned int nb_values;
 	unsigned int nb_operations_local = 0, nb_operations_total = 0;
-	unsigned int nb_operations_min = 100000, nb_operations_max = 0;;
+	unsigned int nb_operations_min = UINT_MAX, nb_operations_max = 0;;
 	unsigned int values_found = 0, values_not_found = 0;
 	int value;
 	
@@ -139,10 +141,10 @@ void test_search(int num){
 			}
 			
 			if (skiplist_search(d, value, &nb_operations_local)) {
-				values_found++;
+				++values_found;
 				printf("%d -> true\n", value);
 			} else {
-				values_not_found++;
+				++values_not_found;
 				printf("%d -> false\n", value);
 			}
 
@@ -169,20 +171,121 @@ void test_search(int num){
 	printf("\tMin number of operations : %u\n", nb_operations_min);
 	printf("\tMax number of operations : %u\n", nb_operations_max);
 	printf("\tMean number of operations : %u\n", nb_operations_total / nb_values);
+
+	skiplist_delete(d);
 }
 
 /** Exercice 3.
  Programming and test of naïve search operator using iterators.
  */
 void test_search_iterator(int num){
-	(void) num;
+	SkipList d = buildlist(num);
+	SkipListIterator e = skiplist_iterator_create(d, FORWARD_ITERATOR);
+	FILE *input;
+	unsigned int nb_values;
+	unsigned int nb_operations_local = 0, nb_operations_total = 0;
+	unsigned int nb_operations_min = UINT_MAX, nb_operations_max = 0;;
+	unsigned int values_found = 0, values_not_found = 0;
+	int value;
+	
+	char *constructfromfile = gettestfilename("search", num);
+	input = fopen(constructfromfile, "r");
+	if (input!=NULL) {
+		
+		if (fscanf(input, "%u", &nb_values) == -1) {
+			perror("Bad file descriptor");
+			exit(EXIT_FAILURE);
+		}
+		for (unsigned int i=0;i< nb_values; ++i) {
+			if (fscanf(input, "%d", &value) == -1) {
+				perror("Bad file descriptor");
+				exit(EXIT_FAILURE);
+			}
+			
+			nb_operations_local = 0;
+
+			for (e = skiplist_iterator_begin(e); !skiplist_iterator_end(e); e = skiplist_iterator_next(e)) {
+				++nb_operations_local;
+				if (skiplist_iterator_value(e) == value) {
+					++values_found;
+					printf("%d -> true\n", value);
+					break;
+				}
+			}
+
+			if (skiplist_iterator_end(e)) {
+				++values_not_found;
+				printf("%d -> false\n", value);
+			}
+
+			nb_operations_total += nb_operations_local;
+
+			if (nb_operations_local > nb_operations_max) {
+				nb_operations_max = nb_operations_local;
+			}
+			if (nb_operations_local < nb_operations_min) {
+				nb_operations_min = nb_operations_local;
+			}
+		}
+	} else {
+		printf("Unable to open file %s\n", constructfromfile);
+		free(constructfromfile);
+		exit (1);
+	}
+	free(constructfromfile);
+	fclose(input);
+
+	printf("Statistics :\n\tSize of the list : %d\nSearch %d values :\n", skiplist_size(d), nb_values);
+	printf("\tFound %d\n", values_found);
+	printf("\tNot found %d\n", values_not_found);
+	printf("\tMin number of operations : %u\n", nb_operations_min);
+	printf("\tMax number of operations : %u\n", nb_operations_max);
+	printf("\tMean number of operations : %u\n", nb_operations_total / nb_values);
+
+	skiplist_delete(d);
+	skiplist_iterator_delete(e);
 }
 
 /** Exercice 4.
  Programming and test of skiplist remove operator.
  */
 void test_remove(int num){
-	(void) num;
+	SkipList d = buildlist(num);
+	FILE *input;
+	unsigned int nb_values;
+	int value;
+	
+	char *constructfromfile = gettestfilename("remove", num);
+	input = fopen(constructfromfile, "r");
+	if (input!=NULL) {
+		
+		if (fscanf(input, "%u", &nb_values) == -1) {
+			perror("Bad file descriptor");
+			exit(EXIT_FAILURE);
+		}
+		for (unsigned int i=0;i< nb_values; ++i) {
+			if (fscanf(input, "%d", &value) == -1) {
+				perror("Bad file descriptor");
+				exit(EXIT_FAILURE);
+			}
+			d = skiplist_remove(d, value);
+		}
+	} else {
+		printf("Unable to open file %s\n", constructfromfile);
+		free(constructfromfile);
+		exit (1);
+	}
+	free(constructfromfile);
+	fclose(input);
+
+	printf("Skiplist (%d)\n", skiplist_size(d));
+	SkipListIterator e = skiplist_iterator_create(d, BACKWARD_ITERATOR);
+	for(e=skiplist_iterator_begin(e); !skiplist_iterator_end(e); e=skiplist_iterator_next(e))
+		printf("%d ", skiplist_iterator_value(e));
+	printf("\n");
+	
+	skiplist_delete(d);
+	skiplist_iterator_delete(e);
 }
 
 /** Function you ca use to generate dataset for testing.
