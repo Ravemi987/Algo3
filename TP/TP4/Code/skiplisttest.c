@@ -97,6 +97,7 @@ SkipList buildlist(int num) {
 	return d;
 }
 
+/* Affiche un entier. L'environnement n'est pas utilisé */
 void print_value(int v, void* env) {
 	if (!env) printf("%d ", v);
 }
@@ -148,8 +149,10 @@ void test_search(int num){
 				printf("%d -> false\n", value);
 			}
 
+			/* Calcul du nombre total d'opérations */
 			nb_operations_total += nb_operations_local;
 
+			/* Calcul du nombre minimal et maximal d'opérations */
 			if (nb_operations_local > nb_operations_max) {
 				nb_operations_max = nb_operations_local;
 			}
@@ -165,6 +168,7 @@ void test_search(int num){
 	free(constructfromfile);
 	fclose(input);
 
+	/* Affichage des statistiques */
 	printf("Statistics :\n\tSize of the list : %d\nSearch %d values :\n", skiplist_size(d), nb_values);
 	printf("\tFound %d\n", values_found);
 	printf("\tNot found %d\n", values_not_found);
@@ -218,8 +222,10 @@ void test_search_iterator(int num){
 				printf("%d -> false\n", value);
 			}
 
+			/* Calcul du nombre total d'opérations */
 			nb_operations_total += nb_operations_local;
 
+			/* Calcul du nombre minimal et maximal d'opérations */
 			if (nb_operations_local > nb_operations_max) {
 				nb_operations_max = nb_operations_local;
 			}
@@ -235,6 +241,7 @@ void test_search_iterator(int num){
 	free(constructfromfile);
 	fclose(input);
 
+	/* Affichage des statistiques */
 	printf("Statistics :\n\tSize of the list : %d\nSearch %d values :\n", skiplist_size(d), nb_values);
 	printf("\tFound %d\n", values_found);
 	printf("\tNot found %d\n", values_not_found);
@@ -278,6 +285,7 @@ void test_remove(int num){
 	free(constructfromfile);
 	fclose(input);
 
+	/* Affichage dans l'ordre décroissant des valeurs en utilisant un itérateur (fonctionne avec une fonction map)*/
 	printf("Skiplist (%d)\n", skiplist_size(d));
 	SkipListIterator e = skiplist_iterator_create(d, BACKWARD_ITERATOR);
 	for(e=skiplist_iterator_begin(e); !skiplist_iterator_end(e); e=skiplist_iterator_next(e))
