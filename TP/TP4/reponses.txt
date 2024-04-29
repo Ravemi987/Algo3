@@ -1,0 +1,6 @@
+La rechercher avec l'itérateur est un parcours linéaire sur le premier niveau. Il a donc la même complexité
+que la recherche dans une liste simplement chaînée, soit O(n) tandis que pour les SkipLists, 
+la complexité moyenne de l'opération de recherche est de O(log(n)). En conséquence, pour le test numéro 4 dont
+le nombre de valeurs recherchées est de 35035, 9707 opérations sont effectuées en moyenne par l'itérateur
+tandis que seulement 12 sont effectuées par le search. Une différence considérable qui explique pourquoi le temps
+de calcul de l'itérateur est bien supérieur.

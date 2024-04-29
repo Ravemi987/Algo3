@@ -10,10 +10,10 @@
 
 
 typedef struct s_Node {
-	int value; /* Clé */
+	int value; /* Clé ou valeur */
 	int level; /* Niveau du noeud*/
-	struct s_Node **next;
-	struct s_Node **previous;
+	struct s_Node **next; /* Tableau pour les noeuds suivants */
+	struct s_Node **previous; /* Tableau pour les noeuds précédants */
 } Node;
 
 
@@ -26,24 +26,25 @@ struct s_SkipList {
 
 
 struct s_SkipListIterator {
-	SkipList collection;
-	Node *current;
-	Node *begin;
-	Node *(*next)(Node *);
+	SkipList collection; /* Une skiplist*/
+	Node *current; /* Le noeud pointé par l'itérateur*/
+	Node *begin; /* Ici la sentinelle */
+	Node *(*next)(Node *); /* Fonction permettant de parcourir la collection*/
 };
 
 
+/*  Alloue et initialise une SkipList */
 SkipList skiplist_create(int nbLevels) {
-	SkipList d = (SkipList)malloc(sizeof(struct s_SkipList)); /* Allocation skipList*/
+	SkipList d = (SkipList)malloc(sizeof(struct s_SkipList)); /* Allocation skipList */
 	if (d == NULL) return NULL;
 
-	d->sentinel = (Node*)malloc(sizeof(Node)); /* Allocation sentinelle*/
+	d->sentinel = (Node*)malloc(sizeof(Node)); /* Allocation sentinelle */
 	if (d->sentinel == NULL) return NULL;
 
-	d->seed = rng_initialize(0);
+	d->seed = rng_initialize(0); /* Initialisation de la graine de génération à 0 */
 	d->size = 0;
-	d->maxLevel = d->sentinel->level = nbLevels;
-	d->sentinel->value = INT_MAX;
+	d->maxLevel = d->sentinel->level = nbLevels; /* Le niveau de la sentinelle est celui de la liste */
+	d->sentinel->value = INT_MAX; /* La sentinelle a pour valeur 2147483647 (voir rapport) */
 
 	/* Initialisation de la sentinelle */
 	d->sentinel->next = (Node**)malloc(nbLevels*sizeof(Node*)); /* Allocation du tableau de pointeurs next */
@@ -61,6 +62,7 @@ SkipList skiplist_create(int nbLevels) {
 }
 
 
+/* Libère les tableaux pointeurs d'un noeud ainsi que ce noeud en le positionnant à NULL */
 static void skiplist_free_node(Node **n) {
 	if (*n != NULL) {
 		free((*n)->next);
@@ -71,6 +73,7 @@ static void skiplist_free_node(Node **n) {
 }
 
 
+/* Libère la mémoire utilisée par une SkipList */
 void skiplist_delete(SkipList d) {
 	Node *toDelete;
 	Node *current = d->sentinel->next[FIRST_LEVEL];
@@ -78,7 +81,7 @@ void skiplist_delete(SkipList d) {
 	while (current != d->sentinel) {
 		toDelete = current;
 		current = current->next[FIRST_LEVEL];
-		skiplist_free_node(&toDelete); /* Linération du noeud */
+		skiplist_free_node(&toDelete); /* Libération du noeud */
 	}
 
 	skiplist_free_node(&current); /* Libération de la sentinelle */
@@ -86,11 +89,13 @@ void skiplist_delete(SkipList d) {
 }
 
 
+/* Renvoie le nombre de noeuds dans une SkipList */
 unsigned int skiplist_size(SkipList d) {
 	return d->size;
 }
 
 
+/* Retourne la valeur dans la SkipList d correspondant à l'index i */
 int skiplist_ith(SkipList d, unsigned int i) {
 	Node *node = d->sentinel->next[FIRST_LEVEL];
 	while (i--) node = node->next[FIRST_LEVEL];
