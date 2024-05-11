@@ -13,12 +13,12 @@ typedef struct s_Node {
 	int value; /* Clé ou valeur */
 	int level; /* Niveau du noeud */
 	struct s_Node **next; /* Tableau pour les noeuds suivants */
-	struct s_Node **previous; /* Tableau pour les noeuds précédants */
+	struct s_Node **previous; /* Tableau pour les noeuds précédents */
 } Node;
 
 
 struct s_SkipList {
-	int maxLevel; /* Nombre de niveaux dans la skipList */
+	int maxLevel; /* Nombre de niveaux dans la SkipList */
 	Node *sentinel;
 	RNG seed; /* Graine de génération aléatoire */
 	int size;
@@ -26,7 +26,7 @@ struct s_SkipList {
 
 
 struct s_SkipListIterator {
-	SkipList collection; /* Une skiplist */
+	SkipList collection; /* Une SkipList */
 	Node *current; /* Le noeud pointé par l'itérateur */
 	Node *begin; /* Ici la sentinelle */
 	Node *(*next)(Node *); /* Fonction permettant de parcourir la collection */
@@ -35,7 +35,7 @@ struct s_SkipListIterator {
 
 /*  Alloue et initialise une SkipList */
 SkipList skiplist_create(int nbLevels) {
-	SkipList d = (SkipList)malloc(sizeof(struct s_SkipList)); /* Allocation skipList */
+	SkipList d = (SkipList)malloc(sizeof(struct s_SkipList)); /* Allocation SkipList */
 	if (d == NULL) return NULL;
 
 	d->sentinel = (Node*)malloc(sizeof(Node)); /* Allocation sentinelle */
@@ -53,7 +53,7 @@ SkipList skiplist_create(int nbLevels) {
 	d->sentinel->previous = (Node**)malloc(nbLevels*sizeof(Node*)); /* Allocation du tableau de pointeurs previous */
 	if (d->sentinel->previous == NULL) return NULL;
 
-	/* Initialisation des tableaux de pointeurs*/
+	/* Initialisation des tableaux de pointeurs */
 	for (int i = 0; i < nbLevels; ++i) {
 		d->sentinel->next[i] = d->sentinel->previous[i] = d->sentinel;
 	}
@@ -62,7 +62,7 @@ SkipList skiplist_create(int nbLevels) {
 }
 
 
-/* Libère les tableaux pointeurs d'un noeud ainsi que ce noeud en positionnant sa valeur à NULL */
+/* Libère les tableaux de pointeurs d'un noeud ainsi que ce noeud en positionnant sa valeur à NULL */
 static void skiplist_free_node(Node **n) {
 	if (*n != NULL) {
 		free((*n)->next);
@@ -95,7 +95,7 @@ unsigned int skiplist_size(SkipList d) {
 }
 
 
-/* Retourne la valeur dans la SkipList d située à l'index i */
+/* Retourne la valeur dans la SkipList 'd' située à l'index 'i' */
 int skiplist_ith(SkipList d, unsigned int i) {
 	Node *node = d->sentinel->next[FIRST_LEVEL];
 	while (i--) node = node->next[FIRST_LEVEL];
@@ -140,15 +140,15 @@ SkipList skiplist_insert(SkipList d, int value) {
 			node = node->next[i];
 		update[i] = node;
 	}
-	/* value est supérieur ou égal à la valeur du noeud courant */
+	/* 'value' est supérieure ou égale à la valeur du noeud courant */
 	
 	node = node->next[FIRST_LEVEL];
 
-	/* Si la valeur n'est pas déjà présente dans la SkipList, création d'un noeud */
+	/* Si la valeur n'est pas déjà présente dans la SkipList, création d'un nouveau noeud */
 	if (node->value != value) {
 		int level = (int)rng_get_value(&(d->seed), (d->maxLevel)-1); /* Génération de 0 à level-1*/
 		Node *newNode = makeNode(level+1, value);
-		/* Mise à jour des les liens pour chaque niveau */
+		/* Mise à jour des liens pour chaque niveau */
 		for (int i = 0; i <= level; ++i) {
 			newNode->next[i] = update[i]->next[i];
 			newNode->previous[i] = update[i]->next[i]->previous[i];
@@ -172,7 +172,7 @@ SkipList skiplist_remove(SkipList d, int value) {
 		while (node->next[i]->value < value)
 			node = node->next[i];
 	}
-	/* value est supérieur ou égal à la valeur du noeud courant */
+	/* 'value' est supérieure ou égale à la valeur du noeud courant */
 
 	node = node->next[FIRST_LEVEL];
 
@@ -213,13 +213,13 @@ bool skiplist_search(SkipList d, int value, unsigned int *nb_operations) {
 }
 
 
-/* Renvoie le noeud suivant le noeud n sur le premier niveau */
+/* Renvoie le noeud suivant le noeud 'n' sur le premier niveau */
 static Node *goto_next(Node *n) {
 	return n->next[FIRST_LEVEL];
 }
 
 
-/* Renvoie le noeud précédant le noeud n sur le premier niveau */
+/* Renvoie le noeud précédant le noeud 'n' sur le premier niveau */
 static Node *goto_previous(Node *n) {
 	return n->previous[FIRST_LEVEL];
 }
@@ -232,7 +232,7 @@ SkipListIterator skiplist_iterator_create(SkipList d, unsigned char w) {
 
 	it->collection = d;
 
-	/* La SkipList se parcourera de gauche à droite ou de droite à gauche */
+	/* La SkipList se parcourra de gauche à droite ou de droite à gauche */
 	if (w == FORWARD_ITERATOR) {
 		it->begin = d->sentinel->next[FIRST_LEVEL];
 		it->next = goto_next;
@@ -248,7 +248,7 @@ SkipListIterator skiplist_iterator_create(SkipList d, unsigned char w) {
 }
 
 
-/* Supprime l'itérateur*/
+/* Supprime l'itérateur */
 void skiplist_iterator_delete(SkipListIterator it) {
 	if (it) free(it);
 }

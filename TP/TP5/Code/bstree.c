@@ -98,29 +98,116 @@ bool bstree_search(const BinarySearchTree *t, int v) {
 
 BinarySearchTree *bstree_successor(const BinarySearchTree *x) {
     assert(!bstree_empty(x));
-    (void)x;
-    return NULL;
+    BinarySearchTree *cur = x;
+
+    cur = cur->right;
+    if (bstree_empty(cur)) return NULL;
+
+    while (!bstree_empty(cur->left))
+        cur = cur->left;
+
+    return cur;;
 }
 
 BinarySearchTree *bstree_predecessor(const BinarySearchTree *x) {
     assert(!bstree_empty(x));
-    (void)x;
-    return NULL;
+    BinarySearchTree *cur = x;
+
+    cur = cur->left;
+    if (bstree_empty(cur)) return NULL;
+
+    while (!bstree_empty(cur->right))
+        cur = cur->right;
+
+    return cur;
 }
 
 void bstree_swap_nodes(ptrBinarySearchTree *tree, ptrBinarySearchTree from, ptrBinarySearchTree to) {
     assert(!bstree_empty(*tree) && !bstree_empty(from) && !bstree_empty(to));
-    (void)tree; (void)from; (void)to;
+    ptrBinarySearchTree fromPar = from->parent;
+    ptrBinarySearchTree toPar = to->parent;
+    ptrBinarySearchTree fromSonLeft, fromSonRight, toSonLeft, toSonRight;
+    if (bstree_empty(fromPar))
+        fromPar = *tree;
+    if (bstree_empty(toPar))
+        toPar = *tree;
+
+    fromSonLeft = from->left;
+    fromSonRight =from->right;
+    toSonLeft = to->left;
+    toSonRight = to->right;
+
+    if (!bstree_empty(fromSonLeft)) fromSonLeft->parent = to;
+    if (!bstree_empty(fromSonRight)) fromSonRight->parent = to;
+    to->left = fromSonLeft;
+    to->right = fromSonRight;
+
+    if(!bstree_empty(toSonLeft)) toSonLeft->parent = from;
+    if(!bstree_empty(toSonRight)) toSonRight->parent = from;
+    from->left = toSonLeft;
+    from->right = toSonRight;
+    
+    if (from->parent->left == from) {
+        from->parent->left = to;
+    } else {
+        from->parent->right = to;
+    }
+    from->parent = toPar;
+
+    if (to->parent->left == to) {
+        to->parent->left = from;
+    } else {
+        to->parent->right = from;
+    }
+    to->parent = fromPar;
 }
 
 // t -> the tree to remove from, current -> the node to remove
 void bstree_remove_node(ptrBinarySearchTree *t, ptrBinarySearchTree current) {
     assert(!bstree_empty(*t) && !bstree_empty(current));
-    (void)t; (void)current;
+    ptrBinarySearchTree *link;
+
+    if (bstree_empty(current->parent)) {
+        link = t;
+    } else if (current->parent->left == current) {
+        link = &(current->parent->left);
+    } else {
+        link = &(current->parent->right);
+    }
+
+    if (current->left == current->right) {
+        *link = bstree_create();
+        free(current);
+    } else if (bstree_empty(current->left)) {
+        *link = current->right;
+        current->right->parent = current->parent;
+        free(current);
+    } else if (bstree_empty(current->right)) {
+        *link = current->left;
+        current->left->parent = current->parent;;
+        free(current);
+    } else {
+        ptrBinarySearchTree leaf = bstree_successor(current);
+        if (leaf) {
+            bstree_swap_nodes(t, current, leaf);
+            bstree_remove_node(t, current);
+        }
+    }
 }
 
 void bstree_remove(ptrBinarySearchTree *t, int v) {
-    (void)t; (void)v;
+    ptrBinarySearchTree current = *t;
+
+    while (current) {
+        if (current->root == v) {
+            break;
+        }
+        current = (current->root > v) ? current->left : current->right;
+    }
+
+    if (current) {
+        bstree_remove_node(t, current);
+    }
 }
 
 /*------------------------  BSTreeVisitors  -----------------------------*/
@@ -153,7 +240,14 @@ void bstree_depth_postfix(const BinarySearchTree *t, OperateFunctor f, void *use
 }
 
 void bstree_iterative_depth_infix(const BinarySearchTree *t, OperateFunctor f, void *userData) {
-    (void)t; (void) f; (void)userData;
+    BinarySearchTree *current = t;
+    BinarySearchTree *prev = t->parent;
+    BinarySearchTree *next;
+
+    if (current->parent == prev && !bstree_empty(current->left)) {
+        current = current->left;
+        prev = current;
+    }
 }
 
 void bstree_iterative_breadth_prefix(const BinarySearchTree *t, OperateFunctor f, void *userData) {
