@@ -39,9 +39,14 @@ BinarySearchTree *bstree_cons(BinarySearchTree *left, BinarySearchTree *right, i
     return t;
 }
 
+void bstree_remove_node_functor(const BinarySearchTree *t, void *userData) {
+    (void) userData;
+    BinarySearchTree *tmp = (BinarySearchTree *)t;
+    bstree_remove_node(&tmp, tmp);
+}
+
 void bstree_delete(ptrBinarySearchTree *t) {
-    while (!bstree_empty(*t))
-        bstree_remove_node(t, *t);
+    bstree_depth_postfix(*t, bstree_remove_node_functor, NULL);
 }
 
 bool bstree_empty(const BinarySearchTree *t) {
@@ -98,68 +103,82 @@ bool bstree_search(const BinarySearchTree *t, int v) {
 
 BinarySearchTree *bstree_successor(const BinarySearchTree *x) {
     assert(!bstree_empty(x));
-    BinarySearchTree *cur = x;
 
-    cur = cur->right;
-    if (bstree_empty(cur)) return NULL;
-
-    while (!bstree_empty(cur->left))
-        cur = cur->left;
-
-    return cur;;
+    BinarySearchTree *cur = x->right;
+    if (cur) {
+        while (cur->left)
+            cur = cur->left;
+    } else {
+        cur = x->parent;
+        while(cur && (x == cur->right)) {
+            x = cur;
+            cur = cur->parent;
+        }
+    }
+    return cur;
 }
 
 BinarySearchTree *bstree_predecessor(const BinarySearchTree *x) {
     assert(!bstree_empty(x));
-    BinarySearchTree *cur = x;
 
-    cur = cur->left;
-    if (bstree_empty(cur)) return NULL;
-
-    while (!bstree_empty(cur->right))
-        cur = cur->right;
-
+    BinarySearchTree *cur = x->left;
+    if (cur) {
+        while (cur->right)
+            cur = cur->right;
+    } else {
+        cur = x->parent;
+        while (cur && (x == cur->left)) {
+            x = cur;
+            cur = cur->parent;
+        }
+    }
     return cur;
 }
 
 void bstree_swap_nodes(ptrBinarySearchTree *tree, ptrBinarySearchTree from, ptrBinarySearchTree to) {
     assert(!bstree_empty(*tree) && !bstree_empty(from) && !bstree_empty(to));
-    ptrBinarySearchTree fromPar = from->parent;
-    ptrBinarySearchTree toPar = to->parent;
-    ptrBinarySearchTree fromSonLeft, fromSonRight, toSonLeft, toSonRight;
-    if (bstree_empty(fromPar))
-        fromPar = *tree;
-    if (bstree_empty(toPar))
-        toPar = *tree;
 
-    fromSonLeft = from->left;
-    fromSonRight =from->right;
-    toSonLeft = to->left;
-    toSonRight = to->right;
+    if (from == to)
+        return;
 
-    if (!bstree_empty(fromSonLeft)) fromSonLeft->parent = to;
-    if (!bstree_empty(fromSonRight)) fromSonRight->parent = to;
-    to->left = fromSonLeft;
-    to->right = fromSonRight;
+    ptrBinarySearchTree fromLeft = from->left;
+    ptrBinarySearchTree fromRight = from->right;
+    ptrBinarySearchTree toLeft = to->left;
+    ptrBinarySearchTree toRight = to->right;
 
-    if(!bstree_empty(toSonLeft)) toSonLeft->parent = from;
-    if(!bstree_empty(toSonRight)) toSonRight->parent = from;
-    from->left = toSonLeft;
-    from->right = toSonRight;
+    if (fromLeft) fromLeft->parent = to;
+    if (fromRight) fromRight->parent = to;
+    if(toLeft) toLeft->parent = from;
+    if(toRight) toRight->parent = from;
+
+    to->left = fromLeft;
+    to->right = fromRight;
+    from->left = toLeft;
+    from->right = toRight;
     
-    if (from->parent->left == from) {
-        from->parent->left = to;
+    if (from->parent) {
+        if (from->parent->left == from) {
+            from->parent->left = to;
+        } else {
+            from->parent->right = to;
+        }
     } else {
-        from->parent->right = to;
+        *tree = to;
     }
-    from->parent = toPar;
 
-    if (to->parent->left == to) {
-        to->parent->left = from;
+    if (to->parent) {
+        if (to->parent->left == to) {
+            to->parent->left = from;
+        } else {
+            to->parent->right = from;
+        }
     } else {
-        to->parent->right = from;
+        *tree = from;
     }
-    to->parent = fromPar;
+
+    ptrBinarySearchTree temp = from->parent;
+    from->parent = to->parent;
+    to->parent = temp;
 }
 
 // t -> the tree to remove from, current -> the node to remove
@@ -198,16 +217,10 @@ void bstree_remove_node(ptrBinarySearchTree *t, ptrBinarySearchTree current) {
 void bstree_remove(ptrBinarySearchTree *t, int v) {
     ptrBinarySearchTree current = *t;
 
-    while (current) {
-        if (current->root == v) {
-            break;
-        }
+    while (current && current->root != v)
         current = (current->root > v) ? current->left : current->right;
-    }
-
-    if (current) {
+    if (current)
         bstree_remove_node(t, current);
-    }
 }
 
 /*------------------------  BSTreeVisitors  -----------------------------*/
@@ -239,14 +252,23 @@ void bstree_depth_postfix(const BinarySearchTree *t, OperateFunctor f, void *use
     f(t, userData);
 }
 
-void bstree_iterative_depth_infix(const BinarySearchTree *t, OperateFunctor f, void *userData) {
+void bstree_iterative_depth_infix(BinarySearchTree *t, OperateFunctor f, void *userData) {
     BinarySearchTree *current = t;
     BinarySearchTree *prev = t->parent;
-    BinarySearchTree *next;
+    BinarySearchTree *next = t->parent;
 
-    if (current->parent == prev && !bstree_empty(current->left)) {
-        current = current->left;
-        prev = current;
+    while (!bstree_empty(current)) {
+        if (current->parent == prev) {
+            prev = current; next = current->left;
+        }
+        if (bstree_empty(next) || current->left == prev) {
+            f(current, userData);
+            prev = current; next = current->right;
+        }
+        if (bstree_empty(next) || current->right == prev) {
+            prev = current; next = current->parent;
+        }
+        current = next;
     }
 }
 
@@ -282,20 +304,39 @@ struct _BSTreeIterator {
 
 /* minimum element of the collection */
 const BinarySearchTree *goto_min(const BinarySearchTree *e) {
-	(void)e;
-	return NULL;
+    const BinarySearchTree *cur = e->left;
+    if (cur)
+        while (cur->left)
+            cur = cur->left;
+    return cur;
 }
 
 /* maximum element of the collection */
 const BinarySearchTree *goto_max(const BinarySearchTree *e) {
-	(void)e;
-	return NULL;
+	const BinarySearchTree *cur = e->right;
+    if (cur)
+        while (cur->right)
+            cur = cur->right;
+    return cur;
 }
 
 /* constructor */
 BSTreeIterator *bstree_iterator_create(const BinarySearchTree *collection, IteratorDirection direction) {
-	(void)collection; (void)direction;
-	return NULL;
+	BSTreeIterator *i = malloc(sizeof(BSTreeIterator));
+    if (i == NULL) return NULL;
+
+    i->collection = collection;
+
+    if (direction == forward) {
+        i->begin = goto_min;
+        i->next = bstree_successor;
+    } else {
+        i->begin = goto_max;
+        i->next = bstree_predecessor;
+    }
+
+    i->current = i->begin(collection);
+    return i;
 }
 
 /* destructor */

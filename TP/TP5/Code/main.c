@@ -10,11 +10,11 @@
 /* Define this for solving the exercice 4. */
 #define EXERCICE_4
 /* Define this for solving the exercice 5. */
-//#define EXERCICE_5
+#define EXERCICE_5
 /* Define this for solving the exercice 6. */
-//#define EXERCICE_6
+#define EXERCICE_6
 /* Define this for solving the exercice 7. */
-//#define EXERCICE_7
+#define EXERCICE_7
 
 /**
  * This function output one node using the <a href="https://www.graphviz.org/documentation/">dot</a> syntax.
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     printf("\nDone.\n");
 
 #ifdef EXERCICE_2
-    /* exercice 2 : recursive traversal of the tree to apply a given functor */
+    /* Exercice 2 : recursive traversal of the tree to apply a given functor */
     printf("Visiting the tree.");
     printf("\n\tPrefix visitor = ");
     bstree_depth_prefix(theTree, print_tree, NULL);
@@ -149,10 +149,10 @@ int main(int argc, char **argv) {
 #ifdef EXERCICE_5
     /* Exercice 5 : remove a value from the tree */
     printf("Removing from the tree.");
-    fscanf(input, "%d", &n);
+    if (fscanf(input, "%d", &n)){};
     for (int i = 0; i < n; ++i) {
         int v;
-        fscanf(input, "%d", &v);
+        if (fscanf(input, "%d", &v)){};
         printf("\n\tRemoving the value %d from the tree : \t", v);
         bstree_remove(&theTree, v);
 
