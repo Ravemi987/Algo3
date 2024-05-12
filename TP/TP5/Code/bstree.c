@@ -252,8 +252,8 @@ void bstree_depth_postfix(const BinarySearchTree *t, OperateFunctor f, void *use
     f(t, userData);
 }
 
-void bstree_iterative_depth_infix(BinarySearchTree *t, OperateFunctor f, void *userData) {
-    BinarySearchTree *current = t;
+void bstree_iterative_depth_infix(const BinarySearchTree *t, OperateFunctor f, void *userData) {
+    BinarySearchTree *current = (BinarySearchTree*)t;
     BinarySearchTree *prev = t->parent;
     BinarySearchTree *next = t->parent;
 

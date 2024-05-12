@@ -133,7 +133,7 @@ void bstree_depth_postfix(const BinarySearchTree *t, OperateFunctor f, void *use
  * @param f the functor to apply on each node of the tree.
  * @param userData user defined parameters to forward to the functor.
  */
-void bstree_iterative_depth_infix(BinarySearchTree *t, OperateFunctor f, void *userData);
+void bstree_iterative_depth_infix(const BinarySearchTree *t, OperateFunctor f, void *userData);
 /** @} */
 
 /** \defgroup BSTreeBreathFirstVisitors Breadth first visitor and their different implementation.
