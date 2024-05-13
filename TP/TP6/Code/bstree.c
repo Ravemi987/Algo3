@@ -7,6 +7,13 @@
 
 void bstree_remove_node(ptrBinarySearchTree *t, ptrBinarySearchTree current);
 void bstree_free_node(const BinarySearchTree *t, void *userData);
+void printNode(const BinarySearchTree *n, void *out);
+void leftrotate(BinarySearchTree *x);
+void rightrotate(BinarySearchTree *y);
+
+/*------------------------   RBT ENUM   -----------------------------*/
+
+typedef enum {red, black} NodeColor;
 
 /*------------------------  BSTreeType  -----------------------------*/
 
@@ -14,6 +21,7 @@ struct _bstree {
     BinarySearchTree *parent;
     BinarySearchTree *left;
     BinarySearchTree *right;
+    NodeColor color;
     int root;
 };
 
@@ -32,6 +40,7 @@ BinarySearchTree *bstree_cons(BinarySearchTree *left, BinarySearchTree *right, i
     t->parent = NULL;
     t->left = left;
     t->right = right;
+    t->color = red;
     if (t->left != NULL)
         t->left->parent = t;
     if (t->right != NULL)
@@ -361,5 +370,124 @@ BSTreeIterator *bstree_iterator_next(BSTreeIterator *i) {
 
 const BinarySearchTree *bstree_iterator_value(const BSTreeIterator *i) {
     return i->current;
+}
+
+/*------------------------  RedBlackTrees  -----------------------------*/
+
+void printNode(const BinarySearchTree *n, void *out) {
+    FILE *file = (FILE *) out;
+    char *color = (n->color == red) ? "red" : "grey";
+
+    printf("%d ", bstree_root(n));
+    fprintf(file, "\tn%d [style=filled, fillcolor=%s, label=\"{{<parent>}|%d|{<left>|<right>}}\"];\n",
+            bstree_root(n), color, bstree_root(n));
+
+    if (bstree_left(n)) {
+        fprintf(file, "\tn%d:left:c -> n%d:parent:c [headclip=false, tailclip=false]\n",
+                bstree_root(n), bstree_root(bstree_left(n)));
+    } else {
+        fprintf(file, "\tlnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_root(n));
+        fprintf(file, "\tn%d:left:c -> lnil%d:n [headclip=false, tailclip=false]\n",
+                bstree_root(n), bstree_root(n));
+    }
+    if (bstree_right(n)) {
+        fprintf(file, "\tn%d:right:c -> n%d:parent:c [headclip=false, tailclip=false]\n",
+                bstree_root(n), bstree_root(bstree_right(n)));
+    } else {
+        fprintf(file, "\trnil%d [style=filled, fillcolor=grey, label=\"NIL\"];\n", bstree_root(n));
+        fprintf(file, "\tn%d:right:c -> rnil%d:n [headclip=false, tailclip=false]\n",
+                bstree_root(n), bstree_root(n));
+    }
+}
+
+void rbtree_export_dot(const BinarySearchTree *t, FILE *file) {
+    fprintf(file, "digraph RedBlackTree {\n\tgraph [ranksep =0.5];\n\tnode [shape = record];\n\n");
+    bstree_iterative_depth_infix(t, printNode, file);
+    fprintf(file, "\n}\n");
+}
+
+void leftrotate(BinarySearchTree *x) {
+    assert(!bstree_empty(x) && !bstree_empty(x->right));
+    BinarySearchTree *gamma;
+    BinarySearchTree *alpha;
+
+    /* Memorisation de alpha et gamma */
+    gamma = x->right->right;
+    alpha = x->left;
+
+    /* Deplacement de beta a la place de gamma */
+    if (x->right->left)
+        x->right->right = x->right->left;
+    else
+        x->right->right = NULL;
+
+    /* Deplacement de alpha a l'ancienne place de beta */
+    if (alpha) {
+        x->right->left = alpha;
+        alpha->parent = x->right;
+    } else {
+        x->right->left = NULL;
+    }
+
+    /* Deplacement de la branche de droite a gauche */
+    x->left = x->right;
+
+    /* Deplacement de gamma sur la branche de droite */
+    if (gamma) {
+        x->right = gamma;
+        gamma->parent = x;
+    } else {
+        x->right = NULL;
+    }
+
+    /* Echange de x et y */
+    bstree_swap_nodes(&x, x, x->left);
+}
+
+void rightrotate(BinarySearchTree *y) {
+    assert(!bstree_empty(y) && !bstree_empty(y->left));
+    BinarySearchTree *gamma;
+    BinarySearchTree *alpha;
+
+    /* Memorisation de alpha et gamma */
+    alpha = y->left->left;
+    gamma = y->right;
+
+    /* Deplacement de beta a la place de alpha */
+    if (y->left->right)
+        y->left->left = y->left->right;
+    else
+        y->left->left = NULL;
+
+    /* Deplacement de gamma a l'ancienne place de beta */
+    if (gamma) {
+        y->left->right = gamma;
+        gamma->parent = y->left;
+    } else {
+        y->left->right = NULL;
+    }
+
+    /* Deplacement de la branche de gauche a droite */
+    y->right = y->left;
+
+    /* Deplacement de alpha sur la branche de gauche */
+    if (alpha) {
+        y->left = alpha;
+        alpha->parent = y;
+    } else {
+        y->left = NULL;
+    }
+
+    /* Echange de x et y */
+    bstree_swap_nodes(&y, y, y->right);
+
+}
+
+void testrotateleft(BinarySearchTree *t) {
+    leftrotate(t);
+}
+
+void testrotateright(BinarySearchTree *t) {
+    rightrotate(t);
 }
 
