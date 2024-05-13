@@ -6,9 +6,9 @@
 /* Define this for solving the exercice 2. - test rotations on nodes */
 #define EXERCICE_2
 /* Define this for solving the exercice 3. - fix rb property after add*/
-//#define EXERCICE_3
+#define EXERCICE_3
 /* Define this for solving the exercice 4. - nothing to do, just to verify that search is still operational */
-//#define EXERCICE_4
+#define EXERCICE_4
 /* Define this for solving the exercice 5. - fix rb property after remove */
 //#define EXERCICE_5
 
@@ -101,10 +101,10 @@ int main(int argc, char **argv) {
 #ifdef EXERCICE_4
     /* Exercice 4 : search for values on the tree */
     printf("Searching into the tree.");
-    fscanf(input, "%d", &n);
+    if (fscanf(input, "%d", &n)){};
     for (int i = 0; i < n; ++i) {
         int v;
-        fscanf(input, "%d", &v);
+        if (fscanf(input, "%d", &v)){};
         printf("\n\tSearching for value %d in the tree : %s", v, bstree_search(theTree, v) ? "true" : "false");
     }
     printf("\nDone.\n");

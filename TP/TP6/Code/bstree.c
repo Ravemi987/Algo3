@@ -10,6 +10,14 @@ void bstree_free_node(const BinarySearchTree *t, void *userData);
 void printNode(const BinarySearchTree *n, void *out);
 void leftrotate(BinarySearchTree *x);
 void rightrotate(BinarySearchTree *y);
+ptrBinarySearchTree grandparent(ptrBinarySearchTree n);
+ptrBinarySearchTree uncle(ptrBinarySearchTree n);
+ptrBinarySearchTree fixredblack_insert(ptrBinarySearchTree x);
+ptrBinarySearchTree fixredblack_insert_case0(ptrBinarySearchTree x);
+ptrBinarySearchTree fixredblack_insert_case1(ptrBinarySearchTree x);
+ptrBinarySearchTree fixredblack_insert_case2(ptrBinarySearchTree x);
+ptrBinarySearchTree fixredblack_insert_case2_left(ptrBinarySearchTree x);
+ptrBinarySearchTree fixredblack_insert_case2_right(ptrBinarySearchTree x);
 
 /*------------------------   RBT ENUM   -----------------------------*/
 
@@ -99,6 +107,10 @@ void bstree_add(ptrBinarySearchTree *t, int v) {
 
     *cur = bstree_cons(NULL, NULL, v);
     (*cur)->parent = par;
+
+    BinarySearchTree *stop = fixredblack_insert(*cur);
+    if (stop->parent == NULL)
+        *t = stop;
 }
 
 bool bstree_search(const BinarySearchTree *t, int v) {
@@ -480,7 +492,6 @@ void rightrotate(BinarySearchTree *y) {
 
     /* Echange de x et y */
     bstree_swap_nodes(&y, y, y->right);
-
 }
 
 void testrotateleft(BinarySearchTree *t) {
@@ -491,3 +502,90 @@ void testrotateright(BinarySearchTree *t) {
     rightrotate(t);
 }
 
+ptrBinarySearchTree grandparent(ptrBinarySearchTree n) {
+    if (n && n->parent)
+        return n->parent->parent;
+    else
+        return NULL;
+}
+
+ptrBinarySearchTree uncle(ptrBinarySearchTree n) {
+    ptrBinarySearchTree gp = grandparent(n);
+    if (!gp) 
+        return NULL;
+    if (n->parent == gp->left)
+        return gp->right;
+    else
+        return gp->left;
+}
+
+ptrBinarySearchTree fixredblack_insert(ptrBinarySearchTree x) {
+    if (x->parent && x->parent->color == red)
+        return fixredblack_insert_case0(x);
+    else
+        return x;
+}
+
+ptrBinarySearchTree fixredblack_insert_case0(ptrBinarySearchTree x) {
+    ptrBinarySearchTree p = x->parent;
+    if (p->parent == NULL) {
+        p->color = black;
+        return p;
+    } else {
+        return fixredblack_insert_case1(x);
+    }
+}
+
+ptrBinarySearchTree fixredblack_insert_case1(ptrBinarySearchTree x) {
+    ptrBinarySearchTree f = uncle(x);
+    ptrBinarySearchTree pp = grandparent(x);
+    if (f && f->color == red) {
+        f->color = x->parent->color = black;
+        pp->color = red;
+        return fixredblack_insert(pp);
+    } else {
+        return fixredblack_insert_case2(x);
+    }
+}
+
+ptrBinarySearchTree fixredblack_insert_case2(ptrBinarySearchTree x) {
+    ptrBinarySearchTree pp = grandparent(x);
+    if (x->parent == pp->left)
+        return fixredblack_insert_case2_left(x);
+    else
+        return fixredblack_insert_case2_right(x); 
+}
+
+ptrBinarySearchTree fixredblack_insert_case2_left(ptrBinarySearchTree x) {
+    ptrBinarySearchTree p = x->parent;
+    ptrBinarySearchTree pp = grandparent(x);
+    if (x == p->left) {
+        rightrotate(pp);
+        p->color = black;
+        pp->color = red;
+        return p; /* Nouvelle racine a cause de la rotation */
+    } else {
+        leftrotate(p);
+        rightrotate(pp);
+        x->color = black;
+        pp->color = red;
+        return x;
+    }
+}
+
+ptrBinarySearchTree fixredblack_insert_case2_right(ptrBinarySearchTree x) {
+    ptrBinarySearchTree p = x->parent;
+    ptrBinarySearchTree pp = grandparent(x);
+    if (x == p->right) {
+        leftrotate(pp);
+        p->color = black;
+        pp->color = red;
+        return p; /* Nouvelle racine a cause de la rotation */
+    } else {
+        rightrotate(p);
+        leftrotate(pp);
+        x->color = black;
+        pp->color = red;
+        return x;
+    }
+}
