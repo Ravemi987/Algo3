@@ -10,7 +10,7 @@
 /* Define this for solving the exercice 4. - nothing to do, just to verify that search is still operational */
 #define EXERCICE_4
 /* Define this for solving the exercice 5. - fix rb property after remove */
-//#define EXERCICE_5
+#define EXERCICE_5
 
 
 
@@ -112,10 +112,10 @@ int main(int argc, char **argv) {
 #ifdef EXERCICE_5
     /* Exercice 5 : remove a value from the tree */
     printf("Removing from the tree.");
-    fscanf(input, "%d", &n);
+    if (fscanf(input, "%d", &n)){};
     for (int i = 0; i < n; ++i) {
         int v;
-        fscanf(input, "%d", &v);
+        if (fscanf(input, "%d", &v)){};
         printf("\n\tRemoving the value %d from the tree : \t", v);
         bstree_remove(&theTree, v);
 
