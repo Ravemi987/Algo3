@@ -86,6 +86,14 @@ bool bstree_search(const BinarySearchTree *t, int v);
  */
 void bstree_remove(ptrBinarySearchTree *t, int v);
 
+/** Operator : Nearest Common Ancestor of two nodes in a BinarySearchTree
+ */
+const BinarySearchTree *bstree_nca (const BinarySearchTree *t, int k1, int k2);
+
+/** Operator : distance between two nodes in a BinarySearchTree
+ */
+int bstree_distance(const ptrBinarySearchTree t, int k1, int k2);
+
 /** @} */
 
 

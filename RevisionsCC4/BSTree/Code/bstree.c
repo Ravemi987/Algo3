@@ -8,6 +8,20 @@
 void bstree_remove_node(ptrBinarySearchTree *t, ptrBinarySearchTree current);
 void bstree_free_node(const BinarySearchTree *t, void *userData);
 
+int minimum(int v1, int v2) {
+    if (v1 < v2) 
+        return v1; 
+    else 
+        return v2;
+}
+
+int maximum(int v1, int v2) {
+    if (v1 > v2)
+        return v1;
+    else
+        return v2;
+}
+
 /*------------------------  BSTreeType  -----------------------------*/
 
 struct _bstree {
@@ -221,6 +235,39 @@ void bstree_remove(ptrBinarySearchTree *t, int v) {
         current = (current->root > v) ? current->left : current->right;
     if (current)
         bstree_remove_node(t, current);
+}
+
+int bstree_depth(const BinarySearchTree *t, int v) {
+    if (bstree_empty(t) || bstree_root(t) == v)
+        return 0;
+    else
+        return 1 + minimum(bstree_depth(t->left, v), bstree_depth(t->right, v));
+}
+
+const BinarySearchTree *bstree_nca (const BinarySearchTree *t, int k1, int k2) {
+    assert(bstree_search(t, k1) && bstree_search(t, k2));
+    BinarySearchTree *current = (BinarySearchTree*)t;
+    while(!bstree_empty(current)) {
+        if (bstree_root(current) == k1 || bstree_root(current) == k2) {
+            return current;
+        } else if (bstree_search(current->left, k1) && bstree_search(current->right, k2)) {
+            return current;
+        } else if (bstree_search(current->left, k2) && bstree_search(current->right, k1)) {
+            return current;
+        } else {
+            current = (bstree_search(current->left, maximum(k1, k2)) ? current->left : current->right); 
+        }
+    }
+    return current;
+}
+
+int bstree_distance(const ptrBinarySearchTree t, int k1, int k2) {
+    if (!bstree_search(t, k1) || !bstree_search(t, k2)) {
+        return -1;
+    } else {
+        BinarySearchTree *n = (BinarySearchTree*)bstree_nca(t, k1, k2);
+        return bstree_depth(n, k1) + bstree_depth(n, k2);
+    }
 }
 
 /*------------------------  BSTreeVisitors  -----------------------------*/

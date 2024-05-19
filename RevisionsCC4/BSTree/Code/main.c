@@ -144,6 +144,21 @@ int main(int argc, char **argv) {
         if (fscanf(input, "%d", &v)){};
         printf("\n\tSearching for value %d in the tree : %s", v, bstree_search(theTree, v) ? "true" : "false");
     }
+
+    printf("\n\nSearching for nca.\n");
+    printf("nca(5, 7) = %d\n", bstree_root(bstree_nca(theTree, 5, 7)));
+    printf("nca(3, 7) = %d\n", bstree_root(bstree_nca(theTree, 3, 7)));
+    printf("nca(1, 2) = %d\n", bstree_root(bstree_nca(theTree, 1, 2)));
+    printf("nca(4, 1) = %d\n", bstree_root(bstree_nca(theTree, 4, 1)));
+    printf("nca(7, 7) = %d\n", bstree_root(bstree_nca(theTree, 7, 7)));
+
+    printf("\nSearching for distance.\n");
+    printf("distance(5, 7) = %d\n", bstree_distance(theTree, 5, 7));
+    printf("distance(3, 7) = %d\n", bstree_distance(theTree, 3, 7));
+    printf("distance(1, 2) = %d\n", bstree_distance(theTree, 1, 2));
+    printf("distance(4, 1) = %d\n", bstree_distance(theTree, 4, 1));
+    printf("distance(7, 7) = %d\n", bstree_distance(theTree, 7, 7));
+
     printf("\nDone.\n");
 
 #ifdef EXERCICE_5
