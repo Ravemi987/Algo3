@@ -112,20 +112,31 @@ void node_subdivide(Node* n);
 /**                          Control start here                              **/
 /******************************************************************************/
 /**
- *  Nom         :
- *  Prenom      :
- *  Num Etud    :
+ *  Nom         : Airiau
+ *  Prenom      : Rémi
+ *  Num Etud    : 22204545
  **/
 
 /* Exercice 1 */
 struct _quadtree {
-
+    int capacity;
+    Node *root;
 };
 
 QuadTree* quadtree_create(int npoints, Point min, Point max) {
+    QuadTree *t = malloc(sizeof(struct _quadtree));
+    t->capacity = npoints;
+    t->root = node_create(min, max);
+    return t;
 }
 
 bool quadtree_empty(const QuadTree* t) {
+    if (node_isleaf(t->root)) {
+        return node_numpoints(t->root) == 0;
+    } else {
+        return node_upleft(t->root) == NULL && node_upright(t->root) == NULL &&
+            node_downleft(t->root) == NULL && node_downright(t->root) == NULL;
+    }
 }
 
 
@@ -133,22 +144,93 @@ bool quadtree_empty(const QuadTree* t) {
  */
 void quadtree_add(QuadTree* t, Point p) {
     /* Exercice 2 */
-
+    Node *current = t->root;
+    while (!node_isleaf(current)) {
+        Point s = node_splitpos(current);
+        if (p.x < s.x && p.y < s.y)
+            current = node_downleft(current);
+        else if (p.x < s.x && p.y > s.y)
+            current = node_upleft(current);
+        else if (p.x > s.x && p.y < s.y)
+            current = node_downright(current);
+        else
+            current = node_upright(current);
+    }
     /* Exercice 4 */
-
+    if (node_numpoints(current) < t->capacity) {
+        node_add_point(current, p);
+    } else {
+        node_subdivide(current);
+        quadtree_add(t, p);
+    }
     /* Exercice 2 */
 }
 
 /* Exercice 3 */
 void node_depth_prefix(const Node* n, OperateFunctor f, void* userData) {
+    if (n == NULL) {
+        return;
+    } else {
+        f(n, userData);
+        if (!node_isleaf(n)) {
+            node_depth_prefix(node_upleft(n), f, userData);
+            node_depth_prefix(node_upright(n), f, userData);
+            node_depth_prefix(node_downleft(n), f, userData);
+            node_depth_prefix(node_downright(n), f, userData);
+        }
+    }
 }
 
 /** Depth first, prefix visitor */
 void quadtree_depth_prefix(const QuadTree* t, OperateFunctor f, void* userData){
+    if (quadtree_empty(t)) {
+        return;
+    } else {
+        node_depth_prefix(t->root, f, userData);
+    }
 }
 
 
 /* Exercice 4 */
 void node_subdivide(Node* n) {
     assert(node_isleaf(n));
+
+    float splitpos_x = (n->min.x + n->max.x) / 2;
+    float splitpos_y = (n->min.y + n->max.y) / 2;
+
+    Node* upleft = node_create(create_point(n->min.x, splitpos_y), create_point(splitpos_x, n->max.y));
+    Node* upright = node_create(create_point(splitpos_x, splitpos_y), create_point(n->max.x, n->max.y));
+    Node* downleft = node_create(create_point(n->min.x, n->min.y), create_point(splitpos_x, splitpos_y));
+    Node* downright = node_create(create_point(splitpos_x, n->min.y), create_point(n->max.x, splitpos_y));
+
+    int nbValues;
+    const Point* tab = node_values(n, &nbValues);
+
+    for (int i = 0; i < nbValues; i++) {
+        Point p = tab[i];
+        if (p.x < splitpos_x && p.y < splitpos_y) {
+            node_add_point(downleft, p);
+        } else if (p.x < splitpos_x && p.y > splitpos_y) {
+            node_add_point(upleft, p);
+        } else if (p.x >= splitpos_x && p.y <= splitpos_y) {
+            node_add_point(downright, p);
+        } else {
+            node_add_point(upright, p);
+        }
+    }
+
+    free(n->data.pointset.points);
+
+    n->isleaf = false;
+    n->data.childs.split.x = splitpos_x;
+    n->data.childs.split.y = splitpos_y;
+    n->data.childs.upleft = upleft;
+    n->data.childs.upright = upright;
+    n->data.childs.downleft = downleft;
+    n->data.childs.downright = downright;
+
+    upleft->parent = n;
+    upright->parent = n;
+    downleft->parent = n;
+    downright->parent = n;
 }

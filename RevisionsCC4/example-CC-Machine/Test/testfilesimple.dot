@@ -1,0 +1,39 @@
+digraph QuadTree {
+	graph [ranksep=0.75, nodesep = 0.75];
+	node [shape = record];
+
+	n0x4ab32f0 [label="{{<upleft>|<upright>}|{<downleft>|<downright>}}"];
+	n0x4ab32f0:upleft:c -> n0x4ab3810:n [headclip=false, tailclip=false, color=blueviolet]
+	n0x4ab32f0:downleft:c -> n0x4ab3930:n [headclip=false, tailclip=false, color=gold]
+	n0x4ab32f0:downright:c -> n0x4ab39c0:n [headclip=false, tailclip=false, color=coral]
+	n0x4ab32f0:upright:c -> n0x4ab38a0:n [headclip=false, tailclip=false, color=burlywood]
+	n0x4ab3810 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab38a0 [label="{{<upleft>|<upright>}|{<downleft>|<downright>}}"];
+	n0x4ab38a0:upleft:c -> n0x4ab3e20:n [headclip=false, tailclip=false, color=blueviolet]
+	n0x4ab38a0:downleft:c -> n0x4ab3f40:n [headclip=false, tailclip=false, color=gold]
+	n0x4ab38a0:downright:c -> n0x4ab3fd0:n [headclip=false, tailclip=false, color=coral]
+	n0x4ab38a0:upright:c -> n0x4ab3eb0:n [headclip=false, tailclip=false, color=burlywood]
+	n0x4ab3e20 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab3eb0 [label="{{<upleft>|<upright>}|{<downleft>|<downright>}}"];
+	n0x4ab3eb0:upleft:c -> n0x4ab4100:n [headclip=false, tailclip=false, color=blueviolet]
+	n0x4ab3eb0:downleft:c -> n0x4ab4220:n [headclip=false, tailclip=false, color=gold]
+	n0x4ab3eb0:downright:c -> n0x4ab42b0:n [headclip=false, tailclip=false, color=coral]
+	n0x4ab3eb0:upright:c -> n0x4ab4190:n [headclip=false, tailclip=false, color=burlywood]
+	n0x4ab4100 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab4190 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab4220 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab42b0 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab3f40 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab3fd0 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab3930 [label="{{<upleft>|<upright>}|{<downleft>|<downright>}}"];
+	n0x4ab3930:upleft:c -> n0x4ab3aa0:n [headclip=false, tailclip=false, color=blueviolet]
+	n0x4ab3930:downleft:c -> n0x4ab3bc0:n [headclip=false, tailclip=false, color=gold]
+	n0x4ab3930:downright:c -> n0x4ab3c50:n [headclip=false, tailclip=false, color=coral]
+	n0x4ab3930:upright:c -> n0x4ab3b30:n [headclip=false, tailclip=false, color=burlywood]
+	n0x4ab3aa0 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab3b30 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab3bc0 [style=filled, fillcolor=aquamarine4, label="1 point"];
+	n0x4ab3c50 [style=filled, fillcolor=dodgerblue, label="Empty"];
+	n0x4ab39c0 [style=filled, fillcolor=dodgerblue, label="Empty"];
+
+}
