@@ -1,0 +1,35 @@
+digraph StaticSearchTree {
+	graph [ranksep=0.75, nodesep = 0.75];
+	node [shape = record];
+
+	n0 [label="{{<parent>}|4|{<left>|<right>}}"];
+	n0:left:c -> n4:parent:c [headclip=false, tailclip=false]
+	n0:right:c -> n1:parent:c [headclip=false, tailclip=false]
+	n1 [label="{{<parent>}|6|{<left>|<right>}}"];
+	n1:left:c -> n3:parent:c [headclip=false, tailclip=false]
+	n1:right:c -> n2:parent:c [headclip=false, tailclip=false]
+	n2 [label="{{<parent>}|7|{<left>|<right>}}"];
+	lnil2 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n2:left:c -> lnil2:n [headclip=false, tailclip=false, color=dodgerblue]
+	rnil2 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n2:right:c -> rnil2:n [headclip=false, tailclip=false, color=dodgerblue]
+	n3 [label="{{<parent>}|5|{<left>|<right>}}"];
+	lnil3 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n3:left:c -> lnil3:n [headclip=false, tailclip=false, color=dodgerblue]
+	rnil3 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n3:right:c -> rnil3:n [headclip=false, tailclip=false, color=dodgerblue]
+	n4 [label="{{<parent>}|2|{<left>|<right>}}"];
+	n4:left:c -> n6:parent:c [headclip=false, tailclip=false]
+	n4:right:c -> n5:parent:c [headclip=false, tailclip=false]
+	n5 [label="{{<parent>}|3|{<left>|<right>}}"];
+	lnil5 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n5:left:c -> lnil5:n [headclip=false, tailclip=false, color=dodgerblue]
+	rnil5 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n5:right:c -> rnil5:n [headclip=false, tailclip=false, color=dodgerblue]
+	n6 [label="{{<parent>}|1|{<left>|<right>}}"];
+	lnil6 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n6:left:c -> lnil6:n [headclip=false, tailclip=false, color=dodgerblue]
+	rnil6 [style=filled, fillcolor=dodgerblue, label="NIL"];
+	n6:right:c -> rnil6:n [headclip=false, tailclip=false, color=dodgerblue]
+
+}
