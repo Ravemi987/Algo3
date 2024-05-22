@@ -210,6 +210,35 @@ int tree_search(const StaticSearchTree *t, int k){
 
 /* Accessors and function helper */
 
+typedef struct _accessor {
+    int (*first)(const StaticSearchTree *, int);
+    int (*second)(const StaticSearchTree *, int);
+    int (*third)(const StaticSearchTree *, int);
+} *ChildAccessFunctors;
+
+
+void tree_visit_infix(const StaticSearchTree*t, VisitFunctor f, void *userData, ChildAccessFunctors functors) {
+    int current = t->root;
+    int prev = functors->third(t, current);
+    int next = functors->third(t, current);
+
+    while(current != -1) {
+        if (tree_parent(t, current) == prev) {
+            prev = current;
+            next = functors->first(t, current);
+        }
+        if (next == -1 || tree_left(t, current) == prev) {
+            f(t, current, userData);
+            prev = current;
+            next = functors->second(t, current);
+        }
+        if (next == -1 || tree_right(t, current) == prev) {
+            prev = current;
+            next = functors->third(t, current);
+        }
+        current = next;
+    }
+}
 
 /** inorder visitor
  * @param t the tree to visit
@@ -217,26 +246,12 @@ int tree_search(const StaticSearchTree *t, int k){
  * @param userData opaque pointer to pass to the functor
  */
 void tree_inorder(const StaticSearchTree *t, VisitFunctor f, void *userData) {
-    int current = t->root;
-    int prev = t->tabNodes[current].links[PARENT];
-    int next = t->tabNodes[current].links[PARENT];
-
-    while(current != -1) {
-        if (tree_parent(t, current) == prev) {
-            prev = current;
-            next = t->tabNodes[current].links[LEFT];
-        }
-        if (next == -1 || tree_left(t, current) == prev) {
-            f(t, current, userData);
-            prev = current;
-            next = t->tabNodes[current].links[RIGHT];
-        }
-        if (next == -1 || tree_right(t, current) == prev) {
-            prev = current;
-            next = t->tabNodes[current].links[PARENT];
-        }
-        current = next;
-    }
+    ChildAccessFunctors functor = malloc(sizeof(struct _accessor));
+    functor->first = tree_left;
+    functor->second = tree_right;
+    functor->third = tree_parent,
+    tree_visit_infix(t, f, userData, functor);
+    free(functor);
 }
 
 /** reverse order visitor
@@ -245,7 +260,12 @@ void tree_inorder(const StaticSearchTree *t, VisitFunctor f, void *userData) {
  * @param userData opaque pointer to pass to the functor
  */
 void tree_reverseorder(const StaticSearchTree *t, VisitFunctor f, void *userData) {
-    (void)t;(void)f;(void)userData;
+    ChildAccessFunctors functor = malloc(sizeof(struct _accessor));
+    functor->first = tree_right;
+    functor->second = tree_left;
+    functor->third = tree_parent,
+    tree_visit_infix(t, f, userData, functor);
+    free(functor);
 }
 
 /*
@@ -260,13 +280,46 @@ void tree_reverseorder(const StaticSearchTree *t, VisitFunctor f, void *userData
  * @pre tree_search(t, k1) != -1 && tree_search(t, k2) != -1
  */
 int tree_nearest_common_ancestor(const StaticSearchTree *t, int k1, int k2) {
-    (void)t;(void)k1;(void)k2;
-    return -1;
-} 
+    assert(tree_search(t, k1) != -1 && tree_search(t, k2) != -1);
+    StaticSearchTree tmp_left = *t;
+    StaticSearchTree tmp_right = *t;
+    int cur = t->root;
+    while (cur != -1) {
+        tmp_left.root = t->tabNodes[cur].links[LEFT];
+        tmp_right.root = t->tabNodes[cur].links[RIGHT];
+        if (t->tabNodes[cur].key == k1 || t->tabNodes[cur].key == k2) {
+            break;
+        } else if (((tree_search(&tmp_left, k1) != -1) && (tree_search(&tmp_right, k2)) != -1) || ((tree_search(&tmp_right, k1) != -1) && (tree_search(&tmp_left, k2)) != -1)) {
+            break;
+        } else {
+            cur = ((tree_search(&tmp_left, k1) != -1)) ? tmp_left.root : tmp_right.root;
+        }
+    }
+    return cur;
+}
 
 /* 
  * Exercice 5 : calcul de la distance entre deux cles de l'arbre (nombre d'arete dans l'arbre)
  */
+
+int min(int k1, int k2) {
+    if (k1 < k2)
+        return k1;
+    return k2;
+}
+
+int depth(const StaticSearchTree *t, int k) {
+    StaticSearchTree tmp_left = *t;
+    tmp_left.root = t->tabNodes[t->root].links[LEFT];
+    StaticSearchTree tmp_right = *t;
+    tmp_right.root = t->tabNodes[t->root].links[RIGHT];
+
+    if (t->root == -1 || t->tabNodes[t->root].key == k) {
+        return 0;
+    } else {
+        return 1 + min(depth(&tmp_left, k), depth(&tmp_right, k));
+    }
+}
 
 /**
  * return the number of edges in the tree between two keys.
@@ -277,6 +330,13 @@ int tree_nearest_common_ancestor(const StaticSearchTree *t, int k1, int k2) {
  * @pre tree_search(t, k1) != -1 && tree_search(t, k2) != -1
  */
 int tree_distance(const StaticSearchTree *t, int k1, int k2) {
-    (void)t;(void)k1;(void)k2;
-    return -1;
+    if ((tree_search(t, k1) == -1) && (tree_search(t, k2) == -1)) {
+        return -1;
+    }
+    else {
+        int nca = tree_nearest_common_ancestor(t, k1, k2);
+        StaticSearchTree tmp = *t;
+        tmp.root = nca;
+        return depth(&tmp, k1) + depth(&tmp, k2);
+    }
 }
