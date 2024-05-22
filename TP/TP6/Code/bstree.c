@@ -188,7 +188,7 @@ void bstree_swap_nodes(ptrBinarySearchTree *tree, ptrBinarySearchTree from, ptrB
     ptrBinarySearchTree toLeft = to->left;
     ptrBinarySearchTree toRight = to->right;
 
-    /* Le parent des fils du noeud 'from' est maintenant le noeud 'to' et inversement */
+    /* Le noeud 'to' devient le parent des fils du noeud 'from' et inversement */
     if (fromLeft) fromLeft->parent = to;
     if (fromRight) fromRight->parent = to;
     if(toLeft) toLeft->parent = from;
@@ -243,7 +243,7 @@ void bstree_remove_node(ptrBinarySearchTree *t, ptrBinarySearchTree current) {
     } else { /* current a deux fils */
         ptrBinarySearchTree leaf = bstree_successor(current);
         if (leaf) {
-            bstree_swap_nodes(t, current, leaf);/* echange entre le noeud et son successeur */
+            bstree_swap_nodes(t, current, leaf);/* échange entre le noeud et son successeur */
             /* Dans ce cas précis, seule la clé du noeud doit être échangée, pas la couleur (provoque des bugs sinon) */
             NodeColor tmp = current->color;
             current->color = leaf->color;
@@ -317,18 +317,21 @@ void bstree_iterative_depth_infix(const BinarySearchTree *t, OperateFunctor f, v
     BinarySearchTree *next = t->parent; /* next est le prochain noeud qui doit être visité */
 
     while (!bstree_empty(current)) {
-        /* Si on vient du parent, on doit aller sur le fils gauche */
+        /* 1ere visite : si on vient du parent, on doit aller sur le fils gauche */
         if (current->parent == prev) {
-            prev = current; next = current->left;
+            prev = current; 
+            next = current->left;
         }
-        /* Si pas de fils gauche OU qu'on vient du fils gauche, on doit aller sur le fils droit */
+        /* 2eme visite : si pas de fils gauche OU qu'on vient du fils gauche, on doit aller sur le fils droit */
         if (bstree_empty(next) || current->left == prev) {
             f(current, userData);
-            prev = current; next = current->right;
+            prev = current; 
+            next = current->right;
         }
-        /* Si pas de fils droit OU qu'on vient du fils droit, on doit retourner sur le parent */
+        /* 3eme visite : si pas de fils droit OU qu'on vient du fils droit, on doit retourner sur le parent */
         if (bstree_empty(next) || current->right == prev) {
-            prev = current; next = current->parent;
+            prev = current; 
+            next = current->parent;
         }
         current = next;
     }
@@ -340,7 +343,7 @@ void bstree_iterative_breadth_prefix(const BinarySearchTree *t, OperateFunctor f
     q = queuePush(q, t); /* On push la racine de l'arbre dans la file  */
     while (!queueEmpty(q)) {
         BinarySearchTree *cur = (BinarySearchTree*)queueTop(q);
-        f(cur, userData); /* On effecte le traitement */
+        f(cur, userData); /* On effectue le traitement */
         /* Tant qu'il reste des noeuds à visiter, on met les fils gauche et droit dans la file */
         q = queuePop(q);
         if (!bstree_empty(cur->left))
@@ -465,13 +468,13 @@ void leftrotate(BinarySearchTree *x) {
     gamma = x->right->right;
     alpha = x->left;
 
-    /* Deplacement de beta a la place de gamma */
+    /* Déplacement de beta a la place de gamma */
     if (x->right->left)
         x->right->right = x->right->left;
     else
         x->right->right = NULL;
 
-    /* Deplacement de alpha a l'ancienne place de beta */
+    /* Déplacement de alpha a l'ancienne place de beta */
     if (alpha) {
         x->right->left = alpha;
         alpha->parent = x->right;
@@ -479,7 +482,7 @@ void leftrotate(BinarySearchTree *x) {
         x->right->left = NULL;
     }
 
-    /* Deplacement de la branche de droite a gauche */
+    /* La branche de droite devient celle de gauche */
     x->left = x->right;
 
     /* Deplacement de gamma sur la branche de droite */
@@ -503,13 +506,13 @@ void rightrotate(BinarySearchTree *y) {
     alpha = y->left->left;
     gamma = y->right;
 
-    /* Deplacement de beta a la place de alpha */
+    /* Déplacement de beta a la place de alpha */
     if (y->left->right)
         y->left->left = y->left->right;
     else
         y->left->left = NULL;
 
-    /* Deplacement de gamma a l'ancienne place de beta */
+    /* Déplacement de gamma a l'ancienne place de beta */
     if (gamma) {
         y->left->right = gamma;
         gamma->parent = y->left;
@@ -517,10 +520,10 @@ void rightrotate(BinarySearchTree *y) {
         y->left->right = NULL;
     }
 
-    /* Deplacement de la branche de gauche a droite */
+    /* La branche de gauche devient celle de droite */
     y->right = y->left;
 
-    /* Deplacement de alpha sur la branche de gauche */
+    /* Déplacement de alpha sur la branche de gauche */
     if (alpha) {
         y->left = alpha;
         alpha->parent = y;
@@ -608,7 +611,7 @@ ptrBinarySearchTree fixredblack_insert_case2_left(ptrBinarySearchTree x) {
         rightrotate(pp);
         p->color = black;
         pp->color = red;
-        return p; /* Nouvelle racine a cause de la rotation */
+        return p; /* Nouvelle racine à cause de la rotation */
     } else {
         leftrotate(p);
         rightrotate(pp);
@@ -626,7 +629,7 @@ ptrBinarySearchTree fixredblack_insert_case2_right(ptrBinarySearchTree x) {
         leftrotate(pp);
         p->color = black;
         pp->color = red;
-        return p; /* Nouvelle racine a cause de la rotation */
+        return p; /* Nouvelle racine à cause de la rotation */
     } else {
         rightrotate(p);
         leftrotate(pp);
@@ -638,7 +641,7 @@ ptrBinarySearchTree fixredblack_insert_case2_right(ptrBinarySearchTree x) {
 
 ptrBinarySearchTree fixredblack_remove(ptrBinarySearchTree p, ptrBinarySearchTree x) {
     if (p == NULL) { /* Cas 0 : x est la racine de l'arbre */
-        return x; /* x (subtitute) est NULL ou deja de couleur noire */
+        return x; /* x (subtitute) est NULL ou déjà de couleur noire */
     } else {
         ptrBinarySearchTree f = (p->left == x) ? p->right : p->left;
         if (f->color == black)
